@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seedy Typey – Game</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="game-body">
+  <header class="game-header">
+    <h1 class="game-title">Seedy Typey</h1>
+    <p class="game-subtitle">Type the quote below as fast and accurately as you can.</p>
+  </header>
+
+  <main class="game-main">
+    <div id="quote-display" class="quote-display">Loading quote...</div>
+
+    <textarea
+      id="quote-input"
+      class="quote-input"
+      placeholder="Start typing here..."
+      rows="4"
+      autofocus
+    ></textarea>
+
+    <div class="stats">
+      <p id="wpm">WPM: 0</p>
+      <p id="accuracy">Accuracy: 100%</p>
+      <p id="timer">Time: 0s</p>
+    </div>
+
+    <button id="restart-btn" class="game-button">Try Another</button>
+  </main>
+
+  <footer class="game-footer">
+    <p>Benchmark WPM: <span id="benchmark-wpm">--</span></p>
+  </footer>
+
+  <script src="js/game.js"></script>
+</body>
+</html>
