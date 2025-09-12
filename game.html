@@ -1,41 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seedy Typey – Game</title>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seedy-Typey | Typing Race</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="game-body">
-  <header class="game-header">
-    <h1 class="game-title">Seedy Typey</h1>
-    <p class="game-subtitle">Type the quote below as fast and accurately as you can.</p>
-  </header>
-
-  <main class="game-main">
-    <div id="quote-display" class="quote-display">Loading quote...</div>
-
-    <textarea
-      id="quote-input"
-      class="quote-input"
-      placeholder="Start typing here..."
-      rows="4"
-      autofocus
-    ></textarea>
-
-    <div class="stats">
-      <p id="wpm">WPM: 0</p>
-      <p id="accuracy">Accuracy: 100%</p>
-      <p id="timer">Time: 0s</p>
+<body>
+    <div class="container">
+        <div id="game-interface">
+            <h1>Typing Race</h1>
+            
+            <div class="race-track">
+                <div class="track-line"></div>
+                <div class="car player-car" id="player-car"></div>
+                <div class="car opponent-car" id="opponent-car"></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <div>Your WPM</div>
+                    <div id="wpm">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>Time</div>
+                    <div id="timer">60</div>
+                </div>
+                <div class="stat-box">
+                    <div>Accuracy</div>
+                    <div id="accuracy">100%</div>
+                </div>
+            </div>
+            
+            <div class="typing-container">
+                <div class="quote-display" id="quote-display">
+                    The quote will appear here when you start typing...
+                </div>
+                <input type="text" class="typing-input" id="typing-input" placeholder="Start typing here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </div>
+            
+            <button class="btn" id="menu-btn">Back to Menu</button>
+            
+            <footer>Made with ❤️ by SEEDY</footer>
+        </div>
     </div>
 
-    <button id="restart-btn" class="game-button">Try Another</button>
-  </main>
-
-  <footer class="game-footer">
-    <p>Benchmark WPM: <span id="benchmark-wpm">--</span></p>
-  </footer>
-
-  <script src="js/game.js"></script>
+    <script src="js/game.js"></script>
 </body>
 </html>

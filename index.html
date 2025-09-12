@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seedy Typey</title>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seedy-Typey | Main Menu</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="index-body">
-  <header class="index-header">
-    <h1 class="index-title">Seedy Typey</h1>
-    <p class="index-subtitle">Race against nano’s ghost WPM. Can you beat the benchmark?</p>
-  </header>
+<body>
+    <div class="container">
+        <div id="main-menu">
+            <h1>Seedy-Typey</h1>
+            <h2>Race Against Time & Typing Skills</h2>
+            
+            <div class="race-track">
+                <div class="track-line"></div>
+                <div class="car player-car" style="left: 10%;"></div>
+                <div class="car opponent-car" style="left: 10%;"></div>
+            </div>
+            
+            <p>Test your typing speed against Seedy. Type as fast as you can to win the race!</p>
+            
+            <button class="btn" id="start-btn">Click to Start Typing!</button>
+            
+            <footer>Made with ❤️ by SEEDY</footer>
+        </div>
+    </div>
 
-  <main class="index-main">
-    <button id="start-btn" class="index-button">Start Typing</button>
-  </main>
-
-  <footer class="index-footer">
-    <p>Made with ❤️ by SEEDT</p>
-  </footer>
-
-  <script src="js/main.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
