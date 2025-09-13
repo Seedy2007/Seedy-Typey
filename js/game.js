@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let raceInterval = null;
     let countdownInterval = null;
     let opponentProgress = 0;
-    let opponentSpeed = 0;
+    let opponentTargetWPM = 0;
+    let lastTimestamp = 0;
     
     // Initialize game
     async function initGame() {
@@ -48,9 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Set up event listeners
             setupEventListeners();
-            
-            // Start the game automatically when page loads
-            startGame();
             
         } catch (error) {
             console.error('Error loading quotes:', error);
@@ -72,11 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
         errors = 0;
         typedCharacters = 0;
         
-        // Set opponent speed based on benchmark WPM
-        opponentSpeed = (currentQuote.benchmarkWPM || 60) / 200; // Adjust for smoother movement
+        // Set opponent target WPM
+        opponentTargetWPM = currentQuote.benchmarkWPM || 60;
         
-        // Update progress (not used in single race mode, but keeping for consistency)
-        progressElement.textContent = '100%';
+        // Update progress
+        progressElement.textContent = '0%';
     }
     
     // Render the current quote with styling
@@ -108,6 +106,9 @@ document.addEventListener('DOMContentLoaded', function() {
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
+        
+        // Start the game when user focuses on input
+        typingInput.addEventListener('focus', startGame);
     }
     
     // Start the game with countdown
@@ -140,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 errors = 0;
                 typedCharacters = 0;
                 opponentProgress = 0;
+                lastTimestamp = performance.now();
                 
                 // Enable input
                 typingInput.disabled = false;
@@ -171,10 +173,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Start the race animation
     function startRace() {
-        clearInterval(raceInterval);
+        if (raceInterval) cancelAnimationFrame(raceInterval);
         
-        raceInterval = setInterval(() => {
+        const animate = (timestamp) => {
             if (!gameActive) return;
+            
+            const deltaTime = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
             
             // Calculate WPM
             const elapsedTime = (new Date() - startTime) / 1000 / 60; // in minutes
@@ -189,7 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
             playerCar.style.left = `${5 + playerProgress}%`;
             
             // Move opponent car based on predefined WPM (smooth progression)
-            opponentProgress = Math.min(85, opponentProgress + opponentSpeed);
+            const opponentIncrement = (opponentTargetWPM / 100) * (deltaTime / 100);
+            opponentProgress = Math.min(85, opponentProgress + opponentIncrement);
             opponentCar.style.left = `${5 + opponentProgress}%`;
             
             // Check if someone won
@@ -200,7 +206,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Opponent wins
                 endGame(false);
             }
-        }, 100);
+            
+            raceInterval = requestAnimationFrame(animate);
+        };
+        
+        raceInterval = requestAnimationFrame(animate);
     }
     
     // Handle typing input
@@ -209,31 +219,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const quoteArray = currentQuote.text.split('');
         const inputArray = typingInput.value.split('');
-        const inputText = typingInput.value;
-        const quoteText = currentQuote.text;
-        
-        // Check if there are any errors
-        const hasErrors = inputText !== quoteText.substring(0, inputText.length);
-        
-        // Don't allow advancing if there are errors
-        if (hasErrors) {
-            // Find the first error position
-            let errorPos = 0;
-            for (let i = 0; i < inputArray.length; i++) {
-                if (inputArray[i] !== quoteArray[i]) {
-                    errorPos = i;
-                    break;
-                }
-            }
-            
-            // Truncate the input at the first error
-            if (errorPos > 0) {
-                typingInput.value = inputText.substring(0, errorPos);
-                return;
-            }
-        }
         
         // Reset quote display
+        let hasErrors = false;
         quoteDisplay.querySelectorAll('span').forEach((char, index) => {
             const typedChar = inputArray[index];
             
@@ -260,6 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Count error
                 errors++;
+                hasErrors = true;
             }
         });
         
@@ -271,6 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
             ? Math.round(((typedCharacters - errors) / typedCharacters) * 100) 
             : 100;
         accuracyElement.textContent = `${accuracy}%`;
+        
+        // Update progress
+        const progress = Math.round((typedCharacters / quoteArray.length) * 100);
+        progressElement.textContent = `${progress}%`;
         
         // Check if quote is completed (with no errors)
         if (inputArray.length === quoteArray.length && !hasErrors) {
@@ -299,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function endGame(playerWon = false) {
         gameActive = false;
         clearInterval(timer);
-        clearInterval(raceInterval);
+        cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
         
         endTime = new Date();
@@ -364,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function restartGame() {
         // Reset game state
         clearInterval(timer);
-        clearInterval(raceInterval);
+        cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
         
         gameActive = false;
@@ -384,8 +377,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Select a new random quote
         selectRandomQuote();
         
-        // Start the game again
-        startGame();
+        // Enable input for new game
+        typingInput.disabled = false;
+        typingInput.placeholder = "Click here to start typing...";
     }
     
     // Initialize the game
