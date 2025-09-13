@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastTimestamp = 0;
     let playerFinished = false;
     let opponentFinished = false;
+    let lastPlayerProgress = 0;
     
     // Initialize game
     async function initGame() {
@@ -76,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         typedCharacters = 0;
         playerFinished = false;
         opponentFinished = false;
+        lastPlayerProgress = 0;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
@@ -193,9 +195,16 @@ document.addEventListener('DOMContentLoaded', function() {
             wpmElement.textContent = wpm;
             currentWpmElement.textContent = `${wpm} WPM`;
             
-            // Move player car based on WPM (only forward progress)
-            const playerProgress = Math.min(85, (wpm / 100) * 85);
-            playerCar.style.left = `${5 + playerProgress}%`;
+            // Move player car based on progress through text (not WPM)
+            // Player should only move forward as they type
+            const quoteLength = currentQuote.text.length;
+            const playerProgressPercent = Math.min(85, (typedCharacters / quoteLength) * 85);
+            
+            // Only update position if progress increased (prevent moving backward)
+            if (playerProgressPercent > lastPlayerProgress) {
+                playerCar.style.left = `${5 + playerProgressPercent}%`;
+                lastPlayerProgress = playerProgressPercent;
+            }
             
             // Move opponent car based on predefined WPM (smooth progression)
             // Convert WPM to progress per second (85% progress at target WPM in 60 seconds)
@@ -204,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             opponentCar.style.left = `${5 + opponentProgress}%`;
             
             // Check if someone finished
-            if (playerProgress >= 85 && !playerFinished) {
+            if (playerProgressPercent >= 85 && !playerFinished) {
                 playerFinished = true;
                 if (!opponentFinished) {
                     endGame(true);
