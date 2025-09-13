@@ -13,12 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const restartBtn = document.getElementById('restart-btn');
     const menuBtn = document.getElementById('menu-btn');
     const countdownElement = document.getElementById('countdown');
+    const countdownNumber = document.getElementById('countdown-number');
     const quoteNumberElement = document.getElementById('quote-number');
     
     // Game state
     let quotes = [];
     let currentQuote = {};
-    let currentQuoteIndex = 0;
     let timer = null;
     let timeLeft = 60;
     let startTime = null;
@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameActive = false;
     let raceInterval = null;
     let countdownInterval = null;
+    let opponentProgress = 0;
+    let opponentSpeed = 0;
     
     // Initialize game
     async function initGame() {
@@ -41,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Start with first quote
-            loadQuote(0);
+            // Select a random quote
+            selectRandomQuote();
             
             // Set up event listeners
             setupEventListeners();
@@ -56,19 +58,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Load a specific quote
-    function loadQuote(index) {
-        if (index >= quotes.length) {
-            // All quotes completed, show results
-            showResults();
-            return;
-        }
-        
-        currentQuoteIndex = index;
-        currentQuote = quotes[index];
+    // Select a random quote
+    function selectRandomQuote() {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        currentQuote = quotes[randomIndex];
         
         // Update UI
-        quoteNumberElement.textContent = `Quote ${index + 1}/${quotes.length}`;
+        quoteNumberElement.textContent = `Random Quote`;
         renderQuote();
         
         // Reset typing input
@@ -76,8 +72,11 @@ document.addEventListener('DOMContentLoaded', function() {
         errors = 0;
         typedCharacters = 0;
         
-        // Update progress
-        updateProgress();
+        // Set opponent speed based on benchmark WPM
+        opponentSpeed = (currentQuote.benchmarkWPM || 60) / 200; // Adjust for smoother movement
+        
+        // Update progress (not used in single race mode, but keeping for consistency)
+        progressElement.textContent = '100%';
     }
     
     // Render the current quote with styling
@@ -123,13 +122,13 @@ document.addEventListener('DOMContentLoaded', function() {
         countdownElement.classList.remove('hidden');
         
         let count = 3;
-        countdownElement.querySelector('span').textContent = count;
+        countdownNumber.textContent = count;
         
         countdownInterval = setInterval(() => {
             count--;
             
             if (count > 0) {
-                countdownElement.querySelector('span').textContent = count;
+                countdownNumber.textContent = count;
             } else {
                 clearInterval(countdownInterval);
                 countdownElement.classList.add('hidden');
@@ -140,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 timeLeft = 60;
                 errors = 0;
                 typedCharacters = 0;
+                opponentProgress = 0;
                 
                 // Enable input
                 typingInput.disabled = false;
@@ -188,9 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const playerProgress = Math.min(85, (wpm / 100) * 85);
             playerCar.style.left = `${5 + playerProgress}%`;
             
-            // Move opponent car based on predefined WPM
-            const opponentWpm = currentQuote.benchmarkWPM || 60;
-            const opponentProgress = Math.min(85, (opponentWpm / 100) * 85);
+            // Move opponent car based on predefined WPM (smooth progression)
+            opponentProgress = Math.min(85, opponentProgress + opponentSpeed);
             opponentCar.style.left = `${5 + opponentProgress}%`;
             
             // Check if someone won
@@ -210,6 +209,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const quoteArray = currentQuote.text.split('');
         const inputArray = typingInput.value.split('');
+        const inputText = typingInput.value;
+        const quoteText = currentQuote.text;
+        
+        // Check if there are any errors
+        const hasErrors = inputText !== quoteText.substring(0, inputText.length);
+        
+        // Don't allow advancing if there are errors
+        if (hasErrors) {
+            // Find the first error position
+            let errorPos = 0;
+            for (let i = 0; i < inputArray.length; i++) {
+                if (inputArray[i] !== quoteArray[i]) {
+                    errorPos = i;
+                    break;
+                }
+            }
+            
+            // Truncate the input at the first error
+            if (errorPos > 0) {
+                typingInput.value = inputText.substring(0, errorPos);
+                return;
+            }
+        }
         
         // Reset quote display
         quoteDisplay.querySelectorAll('span').forEach((char, index) => {
@@ -236,10 +258,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     char.classList.add('current');
                 }
                 
-                // Count error if not already counted for this character
-                if (index >= inputArray.length - 1) {
-                    errors++;
-                }
+                // Count error
+                errors++;
             }
         });
         
@@ -252,12 +272,10 @@ document.addEventListener('DOMContentLoaded', function() {
             : 100;
         accuracyElement.textContent = `${accuracy}%`;
         
-        // Check if quote is completed
-        if (inputArray.length === quoteArray.length) {
-            // Quote completed, load next one
-            setTimeout(() => {
-                loadQuote(currentQuoteIndex + 1);
-            }, 500);
+        // Check if quote is completed (with no errors)
+        if (inputArray.length === quoteArray.length && !hasErrors) {
+            // Quote completed correctly, player wins
+            endGame(true);
         }
     }
     
@@ -275,12 +293,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.type === 'contextmenu') {
             return true;
         }
-    }
-    
-    // Update progress
-    function updateProgress() {
-        const progress = Math.round((currentQuoteIndex / quotes.length) * 100);
-        progressElement.textContent = `${progress}%`;
     }
     
     // End the game
@@ -324,12 +336,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="modal-label">Accuracy</div>
                         </div>
                         <div class="modal-stat">
-                            <div class="modal-value">${currentQuoteIndex}</div>
-                            <div class="modal-label">Quotes</div>
+                            <div class="modal-value">${currentQuote.benchmarkWPM || 60}</div>
+                            <div class="modal-label">SEEDY's WPM</div>
                         </div>
                     </div>
                     
-                    <button class="btn primary" id="play-again-btn">Play Again</button>
+                    <button class="btn primary" id="play-again-btn">Race Again</button>
                     <button class="btn" id="results-menu-btn">Main Menu</button>
                 </div>
             </div>
@@ -369,8 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
         playerCar.style.left = '5%';
         opponentCar.style.left = '5%';
         
-        // Load first quote
-        loadQuote(0);
+        // Select a new random quote
+        selectRandomQuote();
         
         // Start the game again
         startGame();
