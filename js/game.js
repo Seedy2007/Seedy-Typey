@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let opponentProgress = 0;
     let opponentTargetWPM = 0;
     let lastTimestamp = 0;
+    let playerFinished = false;
+    let opponentFinished = false;
     
     // Initialize game
     async function initGame() {
@@ -49,6 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Set up event listeners
             setupEventListeners();
+            
+            // Start the game automatically
+            startGame();
             
         } catch (error) {
             console.error('Error loading quotes:', error);
@@ -69,6 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
         typingInput.value = '';
         errors = 0;
         typedCharacters = 0;
+        playerFinished = false;
+        opponentFinished = false;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
@@ -106,9 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
-        
-        // Start the game when user focuses on input
-        typingInput.addEventListener('focus', startGame);
     }
     
     // Start the game with countdown
@@ -166,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timerElement.textContent = timeLeft;
             
             if (timeLeft <= 0) {
-                endGame();
+                endGame(false);
             }
         }, 1000);
     }
@@ -189,22 +193,30 @@ document.addEventListener('DOMContentLoaded', function() {
             wpmElement.textContent = wpm;
             currentWpmElement.textContent = `${wpm} WPM`;
             
-            // Move player car based on WPM
+            // Move player car based on WPM (only forward progress)
             const playerProgress = Math.min(85, (wpm / 100) * 85);
             playerCar.style.left = `${5 + playerProgress}%`;
             
             // Move opponent car based on predefined WPM (smooth progression)
-            const opponentIncrement = (opponentTargetWPM / 100) * (deltaTime / 100);
+            // Convert WPM to progress per second (85% progress at target WPM in 60 seconds)
+            const opponentIncrement = (opponentTargetWPM / 70) * (deltaTime / 1000);
             opponentProgress = Math.min(85, opponentProgress + opponentIncrement);
             opponentCar.style.left = `${5 + opponentProgress}%`;
             
-            // Check if someone won
-            if (playerProgress >= 85) {
-                // Player wins
-                endGame(true);
-            } else if (opponentProgress >= 85) {
-                // Opponent wins
-                endGame(false);
+            // Check if someone finished
+            if (playerProgress >= 85 && !playerFinished) {
+                playerFinished = true;
+                if (!opponentFinished) {
+                    endGame(true);
+                }
+            }
+            
+            if (opponentProgress >= 85 && !opponentFinished) {
+                opponentFinished = true;
+                if (!playerFinished) {
+                    // Opponent finished first, but wait for player to finish
+                    typingInput.disabled = true;
+                }
             }
             
             raceInterval = requestAnimationFrame(animate);
@@ -266,9 +278,12 @@ document.addEventListener('DOMContentLoaded', function() {
         progressElement.textContent = `${progress}%`;
         
         // Check if quote is completed (with no errors)
-        if (inputArray.length === quoteArray.length && !hasErrors) {
+        if (inputArray.length === quoteArray.length && !hasErrors && !playerFinished) {
             // Quote completed correctly, player wins
-            endGame(true);
+            playerFinished = true;
+            if (!opponentFinished) {
+                endGame(true);
+            }
         }
     }
     
@@ -377,9 +392,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Select a new random quote
         selectRandomQuote();
         
-        // Enable input for new game
-        typingInput.disabled = false;
-        typingInput.placeholder = "Click here to start typing...";
+        // Start the game again
+        startGame();
     }
     
     // Initialize the game
