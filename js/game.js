@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let startTime = null;
     let endTime = null;
     let errors = 0;
-    let typedCharacters = 0;
+    let correctCharacters = 0;
     let gameActive = false;
     let raceInterval = null;
     let countdownInterval = null;
@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let playerFinished = false;
     let opponentFinished = false;
     let lastPlayerProgress = 0;
+    let hasErrorsInCurrentAttempt = false;
     
     // Initialize game
     async function initGame() {
@@ -74,10 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset typing input
         typingInput.value = '';
         errors = 0;
-        typedCharacters = 0;
+        correctCharacters = 0;
         playerFinished = false;
         opponentFinished = false;
         lastPlayerProgress = 0;
+        hasErrorsInCurrentAttempt = false;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
@@ -145,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 startTime = new Date();
                 timeLeft = 60;
                 errors = 0;
-                typedCharacters = 0;
+                correctCharacters = 0;
                 opponentProgress = 0;
                 lastTimestamp = performance.now();
                 
@@ -187,18 +189,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const deltaTime = timestamp - lastTimestamp;
             lastTimestamp = timestamp;
             
-            // Calculate WPM
+            // Calculate WPM based on correct characters only
             const elapsedTime = (new Date() - startTime) / 1000 / 60; // in minutes
-            const wpm = Math.round(typedCharacters / 5 / elapsedTime) || 0;
+            const wpm = Math.round(correctCharacters / 5 / elapsedTime) || 0;
             
             // Update WPM display
             wpmElement.textContent = wpm;
             currentWpmElement.textContent = `${wpm} WPM`;
             
-            // Move player car based on progress through text (not WPM)
-            // Player should only move forward as they type
+            // Move player car based on progress through text (only correct characters)
             const quoteLength = currentQuote.text.length;
-            const playerProgressPercent = Math.min(85, (typedCharacters / quoteLength) * 85);
+            const playerProgressPercent = Math.min(85, (correctCharacters / quoteLength) * 85);
             
             // Only update position if progress increased (prevent moving backward)
             if (playerProgressPercent > lastPlayerProgress) {
@@ -206,14 +207,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastPlayerProgress = playerProgressPercent;
             }
             
-            // Move opponent car based on predefined WPM (smooth progression)
-            // Convert WPM to progress per second (85% progress at target WPM in 60 seconds)
-            const opponentIncrement = (opponentTargetWPM / 70) * (deltaTime / 1000);
+            // Move opponent car based on predefined WPM
+            // Calculate how long it should take SEEDY to type the quote at their WPM
+            const quoteWordCount = currentQuote.text.split(' ').length;
+            const timeToComplete = (quoteWordCount / opponentTargetWPM) * 60; // in seconds
+            const opponentIncrement = (85 / timeToComplete) * (deltaTime / 1000);
             opponentProgress = Math.min(85, opponentProgress + opponentIncrement);
             opponentCar.style.left = `${5 + opponentProgress}%`;
             
             // Check if someone finished
-            if (playerProgressPercent >= 85 && !playerFinished) {
+            if (playerProgressPercent >= 85 && !playerFinished && !hasErrorsInCurrentAttempt) {
                 playerFinished = true;
                 if (!opponentFinished) {
                     endGame(true);
@@ -225,6 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!playerFinished) {
                     // Opponent finished first, but wait for player to finish
                     typingInput.disabled = true;
+                    endGame(false);
                 }
             }
             
@@ -240,9 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const quoteArray = currentQuote.text.split('');
         const inputArray = typingInput.value.split('');
+        hasErrorsInCurrentAttempt = false;
         
         // Reset quote display
-        let hasErrors = false;
         quoteDisplay.querySelectorAll('span').forEach((char, index) => {
             const typedChar = inputArray[index];
             
@@ -269,25 +273,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Count error
                 errors++;
-                hasErrors = true;
+                hasErrorsInCurrentAttempt = true;
             }
         });
         
-        // Update typed characters
-        typedCharacters = inputArray.length;
+        // Update correct characters count
+        correctCharacters = 0;
+        for (let i = 0; i < inputArray.length; i++) {
+            if (inputArray[i] === quoteArray[i]) {
+                correctCharacters++;
+            } else {
+                break; // Stop counting after first error
+            }
+        }
         
         // Calculate accuracy
-        const accuracy = typedCharacters > 0 
-            ? Math.round(((typedCharacters - errors) / typedCharacters) * 100) 
+        const totalTyped = inputArray.length;
+        const accuracy = totalTyped > 0 
+            ? Math.round((correctCharacters / totalTyped) * 100) 
             : 100;
         accuracyElement.textContent = `${accuracy}%`;
         
-        // Update progress
-        const progress = Math.round((typedCharacters / quoteArray.length) * 100);
+        // Update progress based on correct characters only
+        const progress = Math.round((correctCharacters / quoteArray.length) * 100);
         progressElement.textContent = `${progress}%`;
         
         // Check if quote is completed (with no errors)
-        if (inputArray.length === quoteArray.length && !hasErrors && !playerFinished) {
+        if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly, player wins
             playerFinished = true;
             if (!opponentFinished) {
@@ -322,13 +334,14 @@ document.addEventListener('DOMContentLoaded', function() {
         endTime = new Date();
         typingInput.disabled = true;
         
-        // Calculate final WPM
+        // Calculate final WPM based on correct characters only
         const timeInMinutes = (endTime - startTime) / 1000 / 60;
-        const finalWpm = Math.round(typedCharacters / 5 / timeInMinutes) || 0;
+        const finalWpm = Math.round(correctCharacters / 5 / timeInMinutes) || 0;
         
         // Calculate final accuracy
-        const finalAccuracy = typedCharacters > 0 
-            ? Math.round(((typedCharacters - errors) / typedCharacters) * 100) 
+        const totalTyped = typingInput.value.length;
+        const finalAccuracy = totalTyped > 0 
+            ? Math.round((correctCharacters / totalTyped) * 100) 
             : 100;
         
         // Show results
