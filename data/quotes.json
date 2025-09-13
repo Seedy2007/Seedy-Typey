@@ -1,0 +1,22 @@
+[
+    {
+        "text": "The quick brown fox jumps over the lazy dog.",
+        "benchmarkWPM": 65
+    },
+    {
+        "text": "Programming is the art of telling another human being what one wants the computer to do.",
+        "benchmarkWPM": 55
+    },
+    {
+        "text": "The best way to predict the future is to invent it.",
+        "benchmarkWPM": 70
+    },
+    {
+        "text": "Simplicity is the ultimate sophistication.",
+        "benchmarkWPM": 75
+    },
+    {
+        "text": "The only way to do great work is to love what you do.",
+        "benchmarkWPM": 60
+    }
+]

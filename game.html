@@ -9,37 +9,68 @@
 <body>
     <div class="container">
         <div id="game-interface">
-            <h1>Typing Race</h1>
+            <header>
+                <h1>Typing Race</h1>
+                <div class="race-info">
+                    <span id="quote-number">Quote 1/100</span>
+                </div>
+            </header>
             
-            <div class="race-track">
-                <div class="track-line"></div>
-                <div class="car player-car" id="player-car"></div>
-                <div class="car opponent-car" id="opponent-car"></div>
+            <div class="race-container">
+                <div class="track">
+                    <div class="lane-marker"></div>
+                    <div class="car player" id="player-car">
+                        <div class="car-top"></div>
+                        <div class="car-body"></div>
+                        <div class="car-label">YOU</div>
+                    </div>
+                    <div class="car opponent" id="opponent-car">
+                        <div class="car-top"></div>
+                        <div class="car-body"></div>
+                        <div class="car-label">SEEDY</div>
+                    </div>
+                    <div class="finish-line"></div>
+                </div>
             </div>
             
-            <div class="stats">
-                <div class="stat-box">
-                    <div>Your WPM</div>
-                    <div id="wpm">0</div>
-                </div>
-                <div class="stat-box">
-                    <div>Time</div>
-                    <div id="timer">60</div>
-                </div>
-                <div class="stat-box">
-                    <div>Accuracy</div>
-                    <div id="accuracy">100%</div>
+            <div class="stats-container">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Your WPM</div>
+                        <div class="stat-value" id="wpm">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timer">60</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Accuracy</div>
+                        <div class="stat-value" id="accuracy">100%</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Progress</div>
+                        <div class="stat-value" id="progress">0%</div>
+                    </div>
                 </div>
             </div>
             
             <div class="typing-container">
-                <div class="quote-display" id="quote-display">
-                    The quote will appear here when you start typing...
+                <div class="countdown hidden" id="countdown">
+                    <span>3</span>
                 </div>
-                <input type="text" class="typing-input" id="typing-input" placeholder="Start typing here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="quote-display" id="quote-display">
+                    Get ready to type! The text will appear when the race starts.
+                </div>
+                <input type="text" class="typing-input" id="typing-input" placeholder="Wait for countdown to start typing..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
+                <div class="current-wpm">
+                    Current Speed: <span id="current-wpm">0 WPM</span>
+                </div>
             </div>
             
-            <button class="btn" id="menu-btn">Back to Menu</button>
+            <div class="game-controls">
+                <button class="btn" id="restart-btn">Restart Race</button>
+                <button class="btn secondary" id="menu-btn">Back to Menu</button>
+            </div>
             
             <footer>Made with ❤️ by SEEDY</footer>
         </div>
