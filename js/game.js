@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastPlayerProgress = 0;
     let hasErrorsInCurrentAttempt = false;
     let gameEnded = false;
+    let winner = null; // 'player' or 'opponent'
     
     // Initialize game
     async function initGame() {
@@ -82,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         lastPlayerProgress = 0;
         hasErrorsInCurrentAttempt = false;
         gameEnded = false;
+        winner = null;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
@@ -182,7 +184,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Both still racing, wait for them to finish
                     setTimeout(() => {
                         if (!gameEnded) {
-                            endGame(false);
+                            // Determine winner based on who's closer to finish
+                            const quoteLength = currentQuote.text.length;
+                            const playerProgressPercent = (correctCharacters / quoteLength) * 85;
+                            
+                            if (playerProgressPercent > opponentProgress) {
+                                endGame(true);
+                            } else {
+                                endGame(false);
+                            }
                         }
                     }, 2000);
                 }
@@ -231,14 +241,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check if someone finished
             if (playerProgressPercent >= 85 && !playerFinished && !hasErrorsInCurrentAttempt) {
                 playerFinished = true;
-                // Don't end game yet, wait for opponent
-                checkGameCompletion(true);
+                if (!winner) {
+                    winner = 'player';
+                }
+                checkGameCompletion();
             }
             
             if (opponentProgress >= 85 && !opponentFinished) {
                 opponentFinished = true;
-                // Don't end game yet, wait for player
-                checkGameCompletion(false);
+                if (!winner) {
+                    winner = 'opponent';
+                }
+                checkGameCompletion();
             }
             
             raceInterval = requestAnimationFrame(animate);
@@ -248,10 +262,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Check if both players have finished
-    function checkGameCompletion(playerWon) {
+    function checkGameCompletion() {
         if (playerFinished && opponentFinished && !gameEnded) {
-            // Both players finished, end the game
-            endGame(playerWon);
+            // Both players finished, end the game with the correct winner
+            endGame(winner === 'player');
         } else if (playerFinished && !opponentFinished) {
             // Player finished first, wait for opponent
             typingInput.disabled = true;
@@ -325,7 +339,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly, player wins
             playerFinished = true;
-            checkGameCompletion(true);
+            if (!winner) {
+                winner = 'player';
+            }
+            checkGameCompletion();
         }
     }
     
