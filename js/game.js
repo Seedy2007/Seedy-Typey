@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let typedCharacters = 0;
     let gameActive = false;
     let raceInterval = null;
+    let countdownInterval = null;
     
     // Initialize game
     async function initGame() {
@@ -45,6 +46,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Set up event listeners
             setupEventListeners();
+            
+            // Start the game automatically when page loads
+            startGame();
             
         } catch (error) {
             console.error('Error loading quotes:', error);
@@ -105,9 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
-        
-        // Start the game when user focuses on input
-        typingInput.addEventListener('focus', startGame);
     }
     
     // Start the game with countdown
@@ -124,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let count = 3;
         countdownElement.querySelector('span').textContent = count;
         
-        const countdownInterval = setInterval(() => {
+        countdownInterval = setInterval(() => {
             count--;
             
             if (count > 0) {
@@ -262,8 +263,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Prevent copy/paste
     function preventCopyPaste(e) {
-        e.preventDefault();
-        return false;
+        // Allow default behavior for all keys except those used for copy/paste
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 88) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        
+        // Allow right-click for other purposes
+        if (e.type === 'contextmenu') {
+            return true;
+        }
     }
     
     // Update progress
@@ -277,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gameActive = false;
         clearInterval(timer);
         clearInterval(raceInterval);
+        clearInterval(countdownInterval);
         
         endTime = new Date();
         typingInput.disabled = true;
@@ -341,6 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset game state
         clearInterval(timer);
         clearInterval(raceInterval);
+        clearInterval(countdownInterval);
         
         gameActive = false;
         timeLeft = 60;
@@ -359,8 +372,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Load first quote
         loadQuote(0);
         
-        // Enable input for new game
-        typingInput.disabled = false;
+        // Start the game again
+        startGame();
     }
     
     // Initialize the game
