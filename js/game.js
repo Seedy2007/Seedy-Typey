@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let opponentFinished = false;
     let lastPlayerProgress = 0;
     let hasErrorsInCurrentAttempt = false;
+    let gameEnded = false;
     
     // Initialize game
     async function initGame() {
@@ -80,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         opponentFinished = false;
         lastPlayerProgress = 0;
         hasErrorsInCurrentAttempt = false;
+        gameEnded = false;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
@@ -173,8 +175,17 @@ document.addEventListener('DOMContentLoaded', function() {
             timeLeft--;
             timerElement.textContent = timeLeft;
             
-            if (timeLeft <= 0) {
-                endGame(false);
+            if (timeLeft <= 0 && !gameEnded) {
+                // Time's up, but let both players finish
+                typingInput.disabled = true;
+                if (!playerFinished && !opponentFinished) {
+                    // Both still racing, wait for them to finish
+                    setTimeout(() => {
+                        if (!gameEnded) {
+                            endGame(false);
+                        }
+                    }, 2000);
+                }
             }
         }, 1000);
     }
@@ -211,25 +222,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // Calculate how long it should take SEEDY to type the quote at their WPM
             const quoteWordCount = currentQuote.text.split(' ').length;
             const timeToComplete = (quoteWordCount / opponentTargetWPM) * 60; // in seconds
-            const opponentIncrement = (85 / timeToComplete) * (deltaTime / 1000);
+            
+            // More accurate opponent movement calculation
+            const opponentIncrement = (85 / timeToComplete) * (deltaTime / 1000) * 1.2; // Adjusted multiplier
             opponentProgress = Math.min(85, opponentProgress + opponentIncrement);
             opponentCar.style.left = `${5 + opponentProgress}%`;
             
             // Check if someone finished
             if (playerProgressPercent >= 85 && !playerFinished && !hasErrorsInCurrentAttempt) {
                 playerFinished = true;
-                if (!opponentFinished) {
-                    endGame(true);
-                }
+                // Don't end game yet, wait for opponent
+                checkGameCompletion(true);
             }
             
             if (opponentProgress >= 85 && !opponentFinished) {
                 opponentFinished = true;
-                if (!playerFinished) {
-                    // Opponent finished first, but wait for player to finish
-                    typingInput.disabled = true;
-                    endGame(false);
-                }
+                // Don't end game yet, wait for player
+                checkGameCompletion(false);
             }
             
             raceInterval = requestAnimationFrame(animate);
@@ -238,9 +247,23 @@ document.addEventListener('DOMContentLoaded', function() {
         raceInterval = requestAnimationFrame(animate);
     }
     
+    // Check if both players have finished
+    function checkGameCompletion(playerWon) {
+        if (playerFinished && opponentFinished && !gameEnded) {
+            // Both players finished, end the game
+            endGame(playerWon);
+        } else if (playerFinished && !opponentFinished) {
+            // Player finished first, wait for opponent
+            typingInput.disabled = true;
+        } else if (opponentFinished && !playerFinished) {
+            // Opponent finished first, player can still finish
+            // Don't disable input, let player finish
+        }
+    }
+    
     // Handle typing input
     function handleTyping() {
-        if (!gameActive) return;
+        if (!gameActive || gameEnded) return;
         
         const quoteArray = currentQuote.text.split('');
         const inputArray = typingInput.value.split('');
@@ -302,9 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly, player wins
             playerFinished = true;
-            if (!opponentFinished) {
-                endGame(true);
-            }
+            checkGameCompletion(true);
         }
     }
     
@@ -326,6 +347,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // End the game
     function endGame(playerWon = false) {
+        if (gameEnded) return;
+        
+        gameEnded = true;
         gameActive = false;
         clearInterval(timer);
         cancelAnimationFrame(raceInterval);
@@ -398,6 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(countdownInterval);
         
         gameActive = false;
+        gameEnded = false;
         timeLeft = 60;
         
         // Reset UI
