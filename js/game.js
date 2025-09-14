@@ -58,9 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set up event listeners
             setupEventListeners();
             
-            // Start the game automatically
-            startGame();
-            
         } catch (error) {
             console.error('Error loading quotes:', error);
             quoteDisplay.textContent = "Error loading quotes. Please check the console for details.";
@@ -87,12 +84,21 @@ document.addEventListener('DOMContentLoaded', function() {
         gameEnded = false;
         winner = null;
         botCurrentPosition = 0;
+        timeLeft = 60;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
         
         // Update progress
         progressElement.textContent = '0%';
+        timerElement.textContent = timeLeft;
+        wpmElement.textContent = '0';
+        accuracyElement.textContent = '100%';
+        currentWpmElement.textContent = '0 WPM';
+        
+        // Reset cars
+        playerCar.style.left = '5%';
+        opponentCar.style.left = '5%';
     }
     
     // Render the current quote with styling
@@ -123,6 +129,13 @@ document.addEventListener('DOMContentLoaded', function() {
         restartBtn.addEventListener('click', restartGame);
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
+        });
+        
+        // Start game when user focuses on input
+        typingInput.addEventListener('focus', function() {
+            if (!gameActive && !gameEnded) {
+                startGame();
+            }
         });
     }
     
@@ -202,8 +215,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 opponentFinished = true;
                 if (!winner) {
                     winner = 'opponent';
+                    // If opponent finishes first and player hasn't finished, player loses
+                    if (!playerFinished) {
+                        endGame(false);
+                    }
                 }
-                checkGameCompletion();
             }
         }, msPerCharacter);
     }
@@ -273,22 +289,6 @@ document.addEventListener('DOMContentLoaded', function() {
         raceInterval = requestAnimationFrame(animate);
     }
     
-    // Check if game should end
-    function checkGameCompletion() {
-        if (gameEnded) return;
-        
-        // If player finished, end game immediately (player wins)
-        if (playerFinished) {
-            endGame(true);
-        }
-        // If opponent finished but player hasn't, keep the game running
-        // until player finishes or time runs out
-        else if (opponentFinished && !playerFinished) {
-            // Opponent finished first, player can still finish
-            // Game continues until player finishes or time runs out
-        }
-    }
-    
     // Handle typing input
     function handleTyping() {
         if (!gameActive || gameEnded) return;
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hasErrorsInCurrentAttempt = false;
         
         // Reset quote display
-        quoteDisplay.querySelectorAll('span').forEach((char, index) {
+        quoteDisplay.querySelectorAll('span').forEach((char, index) => {
             const typedChar = inputArray[index];
             
             // Remove all classes
@@ -351,10 +351,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Check if quote is completed (with no errors)
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
-            // Quote completed correctly, player wins
+            // Quote completed correctly
             playerFinished = true;
-            winner = 'player';
-            endGame(true); // End game immediately when player finishes
+            
+            // Determine winner - if opponent finished first, player loses
+            if (opponentFinished) {
+                endGame(false); // Player finished after SEEDY = loss
+            } else {
+                winner = 'player';
+                endGame(true); // Player finished first = win
+            }
         }
     }
     
@@ -383,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(timer);
         cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
-        clearInterval(botTypingInterval);
+        if (botTypingInterval) clearInterval(botTypingInterval);
         
         endTime = new Date();
         typingInput.disabled = true;
@@ -450,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(timer);
         cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
-        clearInterval(botTypingInterval);
+        if (botTypingInterval) clearInterval(botTypingInterval);
         
         gameActive = false;
         gameEnded = false;
