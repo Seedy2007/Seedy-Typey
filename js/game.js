@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let winner = null;
     let botTypingInterval = null;
     let botCurrentPosition = 0;
-    let totalCharactersTyped = 0;
     
     // Initialize game
     async function initGame() {
@@ -81,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
         typingInput.value = '';
         errors = 0;
         correctCharacters = 0;
-        totalCharactersTyped = 0;
         playerFinished = false;
         opponentFinished = false;
         lastPlayerProgress = 0;
@@ -166,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 timeLeft = 60;
                 errors = 0;
                 correctCharacters = 0;
-                totalCharactersTyped = 0;
                 opponentProgress = 0;
                 lastTimestamp = performance.now();
                 
@@ -299,9 +296,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputArray = typingInput.value.split('');
         hasErrorsInCurrentAttempt = false;
         
-        // Track new errors in this input
-        let newErrors = 0;
-        
         // Reset quote display
         quoteDisplay.querySelectorAll('span').forEach((char, index) => {
             const typedChar = inputArray[index];
@@ -328,40 +322,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Count error
-                newErrors++;
                 hasErrorsInCurrentAttempt = true;
             }
         });
         
-        // Update total errors (only add new errors, never remove)
-        if (newErrors > 0) {
-            errors += newErrors;
-        }
-        
-        // Update total characters typed
-        totalCharactersTyped = inputArray.length;
-        
-        // Update correct characters count
-        correctCharacters = 0;
+        // Update correct characters count (TypeRacer style)
+        // Count how many consecutive correct characters from the start
+        let newCorrectCharacters = 0;
         for (let i = 0; i < inputArray.length; i++) {
             if (inputArray[i] === quoteArray[i]) {
-                correctCharacters++;
+                newCorrectCharacters++;
             } else {
-                break; // Stop counting after first error
+                break;
             }
         }
         
-        // Calculate accuracy based on total characters typed vs total errors
-        const accuracy = totalCharactersTyped > 0 
-            ? Math.max(0, Math.round(((totalCharactersTyped - errors) / totalCharactersTyped) * 100))
-            : 100;
+        // Update errors (count positions where user typed something wrong)
+        // This counts each character position that was ever incorrect
+        let newErrors = 0;
+        for (let i = 0; i < inputArray.length; i++) {
+            if (inputArray[i] !== quoteArray[i]) {
+                newErrors++;
+            }
+        }
+        
+        correctCharacters = newCorrectCharacters;
+        errors = newErrors;
+        
+        // Calculate accuracy (TypeRacer style): correct characters / total characters in quote
+        const accuracy = Math.round((correctCharacters / quoteArray.length) * 100);
         accuracyElement.textContent = `${accuracy}%`;
         
         // Update progress based on correct characters only
         const progress = Math.round((correctCharacters / quoteArray.length) * 100);
         progressElement.textContent = `${progress}%`;
         
-        // Check if quote is completed (with no errors)
+        // Check if quote is completed (with no errors at the end)
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly
             playerFinished = true;
@@ -412,10 +408,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeInMinutes = (endTime - startTime) / 1000 / 60;
         const finalWpm = Math.round(correctCharacters / 5 / timeInMinutes) || 0;
         
-        // Calculate final accuracy based on total characters typed vs total errors
-        const finalAccuracy = totalCharactersTyped > 0 
-            ? Math.max(0, Math.round(((totalCharactersTyped - errors) / totalCharactersTyped) * 100))
-            : 100;
+        // Calculate final accuracy (TypeRacer style): correct characters / total characters in quote
+        const quoteLength = currentQuote.text.length;
+        const finalAccuracy = Math.round((correctCharacters / quoteLength) * 100);
         
         // Show results
         showResults(playerWon, finalWpm, finalAccuracy);
