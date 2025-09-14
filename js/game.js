@@ -58,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set up event listeners
             setupEventListeners();
             
+            // Start the game automatically when page loads
+            startGame();
+            
         } catch (error) {
             console.error('Error loading quotes:', error);
             quoteDisplay.textContent = "Error loading quotes. Please check the console for details.";
@@ -129,13 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
         restartBtn.addEventListener('click', restartGame);
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
-        });
-        
-        // Start game when user focuses on input
-        typingInput.addEventListener('focus', function() {
-            if (!gameActive && !gameEnded) {
-                startGame();
-            }
         });
     }
     
@@ -213,12 +209,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (botCurrentPosition >= quoteLength) {
                 clearInterval(botTypingInterval);
                 opponentFinished = true;
+                
+                // If opponent finishes first, they win but game continues
                 if (!winner) {
                     winner = 'opponent';
-                    // If opponent finishes first and player hasn't finished, player loses
-                    if (!playerFinished) {
-                        endGame(false);
-                    }
+                    // Don't end game yet, let player finish
                 }
             }
         }, msPerCharacter);
@@ -245,6 +240,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         endGame(false);
                     }
+                } else if (playerFinished && !opponentFinished) {
+                    endGame(true); // Player finished before time ran out
+                } else if (opponentFinished && !playerFinished) {
+                    endGame(false); // Opponent finished before time ran out
                 }
             }
         }, 1000);
@@ -354,12 +353,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Quote completed correctly
             playerFinished = true;
             
-            // Determine winner - if opponent finished first, player loses
+            // Determine winner
             if (opponentFinished) {
-                endGame(false); // Player finished after SEEDY = loss
+                // SEEDY finished first, player loses
+                endGame(false);
             } else {
+                // Player finished first, player wins
                 winner = 'player';
-                endGame(true); // Player finished first = win
+                endGame(true);
             }
         }
     }
