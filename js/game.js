@@ -36,7 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastPlayerProgress = 0;
     let hasErrorsInCurrentAttempt = false;
     let gameEnded = false;
-    let winner = null; // 'player' or 'opponent'
+    let winner = null;
+    let botTypingInterval = null;
+    let botCurrentPosition = 0;
     
     // Initialize game
     async function initGame() {
@@ -84,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hasErrorsInCurrentAttempt = false;
         gameEnded = false;
         winner = null;
+        botCurrentPosition = 0;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
@@ -163,10 +166,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Start timer
                 startTimer();
                 
+                // Start bot typing simulation
+                startBotTyping();
+                
                 // Start race animation
                 startRace();
             }
         }, 1000);
+    }
+    
+    // Start bot typing simulation
+    function startBotTyping() {
+        if (botTypingInterval) clearInterval(botTypingInterval);
+        
+        const quoteText = currentQuote.text;
+        const quoteLength = quoteText.length;
+        
+        // Calculate time per character based on WPM
+        // Words per minute -> characters per minute -> characters per second
+        const charactersPerSecond = (opponentTargetWPM * 5) / 60;
+        const msPerCharacter = 1000 / charactersPerSecond;
+        
+        botTypingInterval = setInterval(() => {
+            if (!gameActive || gameEnded) {
+                clearInterval(botTypingInterval);
+                return;
+            }
+            
+            // Increment bot position
+            botCurrentPosition++;
+            
+            // Check if bot finished typing
+            if (botCurrentPosition >= quoteLength) {
+                clearInterval(botTypingInterval);
+                opponentFinished = true;
+                if (!winner) {
+                    winner = 'opponent';
+                }
+                checkGameCompletion();
+            }
+        }, msPerCharacter);
     }
     
     // Start the timer
@@ -228,32 +267,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastPlayerProgress = playerProgressPercent;
             }
             
-            // Move opponent car based on predefined WPM
-            // Calculate how long it should take SEEDY to type the quote at their WPM
-            const quoteWordCount = currentQuote.text.split(' ').length;
-            const timeToComplete = (quoteWordCount / opponentTargetWPM) * 60; // in seconds
-            
-            // More accurate opponent movement calculation
-            const opponentIncrement = (85 / timeToComplete) * (deltaTime / 1000) * 1.2; // Adjusted multiplier
-            opponentProgress = Math.min(85, opponentProgress + opponentIncrement);
-            opponentCar.style.left = `${5 + opponentProgress}%`;
-            
-            // Check if someone finished
-            if (playerProgressPercent >= 85 && !playerFinished && !hasErrorsInCurrentAttempt) {
-                playerFinished = true;
-                if (!winner) {
-                    winner = 'player';
-                }
-                checkGameCompletion();
-            }
-            
-            if (opponentProgress >= 85 && !opponentFinished) {
-                opponentFinished = true;
-                if (!winner) {
-                    winner = 'opponent';
-                }
-                checkGameCompletion();
-            }
+            // Move opponent car based on bot's progress
+            const opponentProgressPercent = Math.min(85, (botCurrentPosition / quoteLength) * 85);
+            opponentProgress = opponentProgressPercent;
+            opponentCar.style.left = `${5 + opponentProgressPercent}%`;
             
             raceInterval = requestAnimationFrame(animate);
         };
@@ -371,6 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(timer);
         cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
+        clearInterval(botTypingInterval);
         
         endTime = new Date();
         typingInput.disabled = true;
@@ -437,6 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(timer);
         cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
+        clearInterval(botTypingInterval);
         
         gameActive = false;
         gameEnded = false;
