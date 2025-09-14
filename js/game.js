@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let winner = null;
     let botTypingInterval = null;
     let botCurrentPosition = 0;
+    let totalCharactersTyped = 0;
     
     // Initialize game
     async function initGame() {
@@ -80,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         typingInput.value = '';
         errors = 0;
         correctCharacters = 0;
+        totalCharactersTyped = 0;
         playerFinished = false;
         opponentFinished = false;
         lastPlayerProgress = 0;
@@ -164,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 timeLeft = 60;
                 errors = 0;
                 correctCharacters = 0;
+                totalCharactersTyped = 0;
                 opponentProgress = 0;
                 lastTimestamp = performance.now();
                 
@@ -296,6 +299,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputArray = typingInput.value.split('');
         hasErrorsInCurrentAttempt = false;
         
+        // Track new errors in this input
+        let newErrors = 0;
+        
         // Reset quote display
         quoteDisplay.querySelectorAll('span').forEach((char, index) => {
             const typedChar = inputArray[index];
@@ -322,10 +328,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Count error
-                errors++;
+                newErrors++;
                 hasErrorsInCurrentAttempt = true;
             }
         });
+        
+        // Update total errors (only add new errors, never remove)
+        if (newErrors > 0) {
+            errors += newErrors;
+        }
+        
+        // Update total characters typed
+        totalCharactersTyped = inputArray.length;
         
         // Update correct characters count
         correctCharacters = 0;
@@ -337,10 +351,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Calculate accuracy
-        const totalTyped = inputArray.length;
-        const accuracy = totalTyped > 0 
-            ? Math.round((correctCharacters / totalTyped) * 100) 
+        // Calculate accuracy based on total characters typed vs total errors
+        const accuracy = totalCharactersTyped > 0 
+            ? Math.max(0, Math.round(((totalCharactersTyped - errors) / totalCharactersTyped) * 100))
             : 100;
         accuracyElement.textContent = `${accuracy}%`;
         
@@ -399,10 +412,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeInMinutes = (endTime - startTime) / 1000 / 60;
         const finalWpm = Math.round(correctCharacters / 5 / timeInMinutes) || 0;
         
-        // Calculate final accuracy
-        const totalTyped = typingInput.value.length;
-        const finalAccuracy = totalTyped > 0 
-            ? Math.round((correctCharacters / totalTyped) * 100) 
+        // Calculate final accuracy based on total characters typed vs total errors
+        const finalAccuracy = totalCharactersTyped > 0 
+            ? Math.max(0, Math.round(((totalCharactersTyped - errors) / totalCharactersTyped) * 100))
             : 100;
         
         // Show results
