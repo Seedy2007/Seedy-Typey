@@ -217,23 +217,18 @@ document.addEventListener('DOMContentLoaded', function() {
             timerElement.textContent = timeLeft;
             
             if (timeLeft <= 0 && !gameEnded) {
-                // Time's up, but let both players finish
+                // Time's up, end the game
                 typingInput.disabled = true;
                 if (!playerFinished && !opponentFinished) {
-                    // Both still racing, wait for them to finish
-                    setTimeout(() => {
-                        if (!gameEnded) {
-                            // Determine winner based on who's closer to finish
-                            const quoteLength = currentQuote.text.length;
-                            const playerProgressPercent = (correctCharacters / quoteLength) * 85;
-                            
-                            if (playerProgressPercent > opponentProgress) {
-                                endGame(true);
-                            } else {
-                                endGame(false);
-                            }
-                        }
-                    }, 2000);
+                    // Determine winner based on who's closer to finish
+                    const quoteLength = currentQuote.text.length;
+                    const playerProgressPercent = (correctCharacters / quoteLength) * 85;
+                    
+                    if (playerProgressPercent > opponentProgress) {
+                        endGame(true);
+                    } else {
+                        endGame(false);
+                    }
                 }
             }
         }, 1000);
@@ -278,17 +273,19 @@ document.addEventListener('DOMContentLoaded', function() {
         raceInterval = requestAnimationFrame(animate);
     }
     
-    // Check if both players have finished
+    // Check if game should end
     function checkGameCompletion() {
-        if (playerFinished && opponentFinished && !gameEnded) {
-            // Both players finished, end the game with the correct winner
-            endGame(winner === 'player');
-        } else if (playerFinished && !opponentFinished) {
-            // Player finished first, wait for opponent
-            typingInput.disabled = true;
-        } else if (opponentFinished && !playerFinished) {
+        if (gameEnded) return;
+        
+        // If player finished, end game immediately (player wins)
+        if (playerFinished) {
+            endGame(true);
+        }
+        // If opponent finished but player hasn't, keep the game running
+        // until player finishes or time runs out
+        else if (opponentFinished && !playerFinished) {
             // Opponent finished first, player can still finish
-            // Don't disable input, let player finish
+            // Game continues until player finishes or time runs out
         }
     }
     
@@ -301,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hasErrorsInCurrentAttempt = false;
         
         // Reset quote display
-        quoteDisplay.querySelectorAll('span').forEach((char, index) => {
+        quoteDisplay.querySelectorAll('span').forEach((char, index) {
             const typedChar = inputArray[index];
             
             // Remove all classes
@@ -356,10 +353,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly, player wins
             playerFinished = true;
-            if (!winner) {
-                winner = 'player';
-            }
-            checkGameCompletion();
+            winner = 'player';
+            endGame(true); // End game immediately when player finishes
         }
     }
     
