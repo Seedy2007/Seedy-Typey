@@ -42,10 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 charElement.innerHTML = '<div class="mouth"></div>';
                 break;
             case 'speedy':
-                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div>';
+                charElement.innerHTML = '<div class="goggles"></div><div class="mouth"></div>';
                 break;
             case 'cool':
-                charElement.innerHTML = '<div class="glasses"></div><div class="mouth"></div>';
+                charElement.innerHTML = '<div class="sunglasses"></div><div class="smirk"></div>';
                 break;
             case 'shy':
                 charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="blush left"></div><div class="blush right"></div><div class="mouth"></div>';
@@ -67,6 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'ghost':
                 charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
+                break;
+            case 'seedy':
+                charElement.innerHTML = '<div class="face">>⩊<</div>';
                 break;
         }
     }

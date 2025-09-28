@@ -189,7 +189,7 @@ p {
     transform: scale(1.1);
 }
 
-/* Happy Character - Fixed */
+/* Happy Character - Fixed mouth position */
 .char.happy {
     background: #FFD700;
     border-color: #FFA500;
@@ -220,10 +220,10 @@ p {
     border-bottom: 3px solid #333;
     border-radius: 0 0 10px 10px;
     bottom: 12px;
-    left: 15px;
+    left: 15px; /* Fixed position */
 }
 
-/* Speedy Character - Fixed */
+/* Speedy Character - Changed to racer */
 .char.speedy {
     background: #FF6B6B;
     border-color: #FF5252;
@@ -232,59 +232,26 @@ p {
 .char.speedy::before {
     content: '';
     position: absolute;
-    width: 0;
-    height: 0;
-    border-left: 12px solid #333;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.char.speedy .eye {
-    position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 20px;
+    height: 12px;
     background: #333;
-    border-radius: 50%;
-    top: 12px;
+    border-radius: 3px;
+    top: 10px;
+    left: 15px;
 }
 
-.char.speedy .eye.left { left: 12px; }
-.char.speedy .eye.right { right: 12px; }
-
-/* Cool Character - Fixed */
-.char.cool {
-    background: #4FC3F7;
-    border-color: #29B6F6;
-}
-
-.char.cool .glasses {
+.char.speedy .goggles {
     position: absolute;
     width: 24px;
-    height: 12px;
+    height: 8px;
+    background: #4FC3F7;
     border: 2px solid #333;
     border-radius: 4px;
-    top: 12px;
+    top: 14px;
     left: 13px;
 }
 
-.char.cool .glasses::before,
-.char.cool .glasses::after {
-    content: '';
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: #333;
-    border-radius: 50%;
-    top: 2px;
-}
-
-.char.cool .glasses::before { left: 3px; }
-.char.cool .glasses::after { right: 3px; }
-
-.char.cool .mouth {
+.char.speedy .mouth {
     position: absolute;
     width: 16px;
     height: 6px;
@@ -294,7 +261,49 @@ p {
     left: 17px;
 }
 
-/* Shy Character - Fixed */
+/* Cool Character - Fixed to look cooler */
+.char.cool {
+    background: #4FC3F7;
+    border-color: #29B6F6;
+}
+
+.char.cool .sunglasses {
+    position: absolute;
+    width: 26px;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+    top: 14px;
+    left: 12px;
+}
+
+.char.cool .sunglasses::before,
+.char.cool .sunglasses::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    top: 0;
+}
+
+.char.cool .sunglasses::before { left: 2px; }
+.char.cool .sunglasses::after { right: 2px; }
+
+.char.cool .smirk {
+    position: absolute;
+    width: 14px;
+    height: 6px;
+    border-bottom: 2px solid #333;
+    border-right: 2px solid #333;
+    border-radius: 0 0 8px 0;
+    bottom: 14px;
+    left: 18px;
+    transform: rotate(-10deg);
+}
+
+/* Shy Character - No changes, already good */
 .char.shy {
     background: #FFB6C1;
     border-color: #FF69B4;
@@ -334,7 +343,7 @@ p {
     left: 19px;
 }
 
-/* Sleepy Character - Fixed */
+/* Sleepy Character - No changes */
 .char.sleepy {
     background: #A1887F;
     border-color: #8D6E63;
@@ -367,7 +376,7 @@ p {
     left: 19px;
 }
 
-/* Mad Character - Fixed */
+/* Mad Character - Fixed to look angrier */
 .char.mad {
     background: #FF5252;
     border-color: #D32F2F;
@@ -375,26 +384,26 @@ p {
 
 .char.mad .eyebrow {
     position: absolute;
-    width: 8px;
+    width: 10px;
     height: 3px;
     background: #333;
     border-radius: 1px;
-    top: 10px;
+    top: 8px;
 }
 
 .char.mad .eyebrow.left { 
-    left: 12px; 
-    transform: rotate(-20deg);
+    left: 10px; 
+    transform: rotate(-30deg);
 }
 .char.mad .eyebrow.right { 
-    right: 12px; 
-    transform: rotate(20deg);
+    right: 10px; 
+    transform: rotate(30deg);
 }
 
 .char.mad .eye {
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: #333;
     border-radius: 50%;
     top: 16px;
@@ -405,15 +414,17 @@ p {
 
 .char.mad .mouth {
     position: absolute;
-    width: 16px;
-    height: 6px;
+    width: 18px;
+    height: 8px;
     border-top: 3px solid #333;
-    border-radius: 8px 8px 0 0;
-    bottom: 12px;
-    left: 17px;
+    border-left: 3px solid #333;
+    border-right: 3px solid #333;
+    border-radius: 50% 50% 0 0;
+    bottom: 10px;
+    left: 16px;
 }
 
-/* Sad Character - Fixed */
+/* Sad Character - No changes */
 .char.sad {
     background: #90CAF9;
     border-color: #64B5F6;
@@ -441,7 +452,7 @@ p {
     left: 15px;
 }
 
-/* Nerd Character - Fixed */
+/* Nerd Character - Fixed eyes spacing */
 .char.nerd {
     background: #81C784;
     border-color: #66BB6A;
@@ -449,12 +460,12 @@ p {
 
 .char.nerd .glasses {
     position: absolute;
-    width: 26px;
+    width: 30px;
     height: 14px;
     border: 2px solid #333;
     border-radius: 6px;
     top: 12px;
-    left: 12px;
+    left: 10px;
 }
 
 .char.nerd .lens {
@@ -466,8 +477,8 @@ p {
     top: 3px;
 }
 
-.char.nerd .lens.left { left: 4px; }
-.char.nerd .lens.right { right: 4px; }
+.char.nerd .lens.left { left: 6px; } /* Fixed spacing */
+.char.nerd .lens.right { right: 6px; } /* Fixed spacing */
 
 .char.nerd .mouth {
     position: absolute;
@@ -479,7 +490,7 @@ p {
     left: 17px;
 }
 
-/* Robot Character - Fixed */
+/* Robot Character - No changes */
 .char.robot {
     background: #B0BEC5;
     border-color: #78909C;
@@ -527,7 +538,7 @@ p {
     left: 15px;
 }
 
-/* Ghost Character - Fixed */
+/* Ghost Character - No changes */
 .char.ghost {
     background: #E1BEE7;
     border-color: #BA68C8;
@@ -558,41 +569,20 @@ p {
     left: 19px;
 }
 
-/* SEEDY Character - Fixed */
+/* SEEDY Character - Updated to >⩊< face */
 .char.seedy {
     background: #FF9800;
     border-color: #F57C00;
 }
 
-.char.seedy .visor {
+.char.seedy .face {
     position: absolute;
-    width: 30px;
-    height: 12px;
-    background: #333;
-    border-radius: 6px 6px 0 0;
-    top: 10px;
-    left: 10px;
-}
-
-.char.seedy .display {
-    position: absolute;
-    width: 20px;
-    height: 8px;
-    background: #4CAF50;
-    border: 1px solid #333;
-    border-radius: 2px;
-    bottom: 12px;
-    left: 15px;
-}
-
-.char.seedy .display::before {
-    content: '^^';
-    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
     color: #333;
-    font-size: 6px;
     font-weight: bold;
-    top: 1px;
-    left: 4px;
 }
 
 /* Character Selection */
