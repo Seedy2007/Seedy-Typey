@@ -2,13 +2,27 @@
 document.addEventListener('DOMContentLoaded', function() {
     const startBtn = document.getElementById('start-btn');
     const instructionsBtn = document.getElementById('instructions-btn');
+    const toggleCharsBtn = document.getElementById('toggle-chars-btn');
     const instructions = document.querySelector('.instructions');
+    const charactersGrid = document.querySelector('.characters-grid');
     const charOptions = document.querySelectorAll('.char-option');
     const playerChar = document.getElementById('player-char');
     
     // Character selection
     let selectedChar = 'happy'; // Default character
     
+    // Toggle character selection
+    toggleCharsBtn.addEventListener('click', function() {
+        charactersGrid.classList.toggle('hidden');
+        
+        if (charactersGrid.classList.contains('hidden')) {
+            toggleCharsBtn.textContent = 'Select Your Character';
+        } else {
+            toggleCharsBtn.textContent = 'Hide Characters';
+        }
+    });
+    
+    // Character selection
     charOptions.forEach(option => {
         option.addEventListener('click', function() {
             // Remove active class from all options

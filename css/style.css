@@ -144,29 +144,29 @@ p {
 /* Car positioning in separate lanes */
 .car {
     position: absolute;
-    width: 60px;
-    height: 40px;
+    width: 70px;
+    height: 50px;
     transition: left 0.2s ease-out;
     z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent !important;
+    border: none !important;
 }
 
 .player, .player-demo {
-    background: #4CAF50;
     bottom: 25px;
 }
 
 .opponent, .opponent-demo {
-    background: #f44336;
     top: 25px;
 }
 
 /* Character container */
 .char-container {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,11 +176,12 @@ p {
 
 /* Base character style */
 .char {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     position: relative;
     transition: transform 0.3s ease;
+    border: 3px solid;
 }
 
 .car:hover .char {
@@ -190,232 +191,293 @@ p {
 /* Happy Character */
 .char.happy {
     background: #FFD700;
-    border: 3px solid #FFA500;
+    border-color: #FFA500;
 }
 
 .char.happy::before,
 .char.happy::after {
     content: '';
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: #333;
     border-radius: 50%;
-    top: 12px;
+    top: 15px;
 }
 
-.char.happy::before { left: 10px; }
-.char.happy::after { right: 10px; }
+.char.happy::before { left: 12px; }
+.char.happy::after { right: 12px; }
 
 .char.happy::after {
     content: '';
     position: absolute;
-    width: 20px;
-    height: 10px;
+    width: 24px;
+    height: 12px;
     border-bottom: 3px solid #333;
-    border-radius: 0 0 10px 10px;
-    bottom: 8px;
-    left: 10px;
+    border-radius: 0 0 12px 12px;
+    bottom: 10px;
+    left: 13px;
 }
 
 /* Speedy Character */
 .char.speedy {
     background: #FF6B6B;
-    border: 3px solid #FF5252;
+    border-color: #FF5252;
 }
 
 .char.speedy::before {
-    content: '⚡';
+    content: '';
     position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 12px solid #333;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 20px;
+}
+
+.char.speedy::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #333;
+    border-radius: 50%;
+    bottom: 8px;
+    left: 22px;
 }
 
 /* Cool Character */
 .char.cool {
     background: #4FC3F7;
-    border: 3px solid #29B6F6;
+    border-color: #29B6F6;
 }
 
 .char.cool::before {
-    content: '😎';
+    content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
+    width: 20px;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    top: 16px;
+    left: 15px;
+    transform: rotate(-10deg);
+}
+
+.char.cool::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    top: 16px;
+    left: 15px;
+    transform: rotate(10deg);
+}
+
+.char.cool::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 8px;
+    border-bottom: 3px solid #333;
+    border-radius: 0 0 10px 10px;
+    bottom: 10px;
+    left: 15px;
 }
 
 /* Shy Character */
 .char.shy {
     background: #FFB6C1;
-    border: 3px solid #FF69B4;
+    border-color: #FF69B4;
 }
 
 .char.shy::before,
 .char.shy::after {
     content: '';
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     background: #333;
     border-radius: 50%;
-    top: 12px;
+    top: 15px;
 }
 
-.char.shy::before { left: 8px; }
-.char.shy::after { right: 8px; }
+.char.shy::before { left: 10px; }
+.char.shy::after { right: 10px; }
 
 .char.shy::after {
     content: '';
     position: absolute;
-    width: 12px;
+    width: 16px;
     height: 6px;
     border-top: 2px solid #333;
-    border-radius: 10px 10px 0 0;
-    bottom: 10px;
-    left: 14px;
+    border-radius: 8px 8px 0 0;
+    bottom: 12px;
+    left: 17px;
 }
 
 /* Sleepy Character */
 .char.sleepy {
     background: #A1887F;
-    border: 3px solid #8D6E63;
+    border-color: #8D6E63;
 }
 
 .char.sleepy::before,
 .char.sleepy::after {
-    content: '—';
+    content: '';
     position: absolute;
-    color: #333;
-    font-size: 12px;
-    top: 12px;
+    width: 6px;
+    height: 2px;
+    background: #333;
+    top: 16px;
+    border-radius: 1px;
 }
 
-.char.sleepy::before { left: 10px; }
-.char.sleepy::after { right: 10px; }
+.char.sleepy::before { left: 12px; transform: rotate(-10deg); }
+.char.sleepy::after { right: 12px; transform: rotate(10deg); }
 
 .char.sleepy::after {
-    content: '💤';
+    content: 'z';
     position: absolute;
+    color: #333;
     font-size: 14px;
-    bottom: 6px;
-    left: 13px;
+    font-weight: bold;
+    bottom: 8px;
+    left: 18px;
+    transform: rotate(0deg);
 }
 
 /* Mad Character */
 .char.mad {
     background: #FF5252;
-    border: 3px solid #D32F2F;
+    border-color: #D32F2F;
 }
 
 .char.mad::before,
 .char.mad::after {
-    content: '>';
+    content: '';
     position: absolute;
-    color: #333;
-    font-size: 12px;
-    top: 12px;
-}
-
-.char.mad::before { 
-    left: 8px;
+    width: 8px;
+    height: 3px;
+    background: #333;
+    top: 16px;
+    border-radius: 1px;
     transform: rotate(-20deg);
 }
-.char.mad::after { 
-    right: 8px;
-    transform: rotate(20deg);
-}
+
+.char.mad::before { left: 10px; }
+.char.mad::after { right: 10px; transform: rotate(20deg); }
 
 .char.mad::after {
-    content: '⌄';
+    content: '';
     position: absolute;
-    font-size: 14px;
-    bottom: 8px;
-    left: 13px;
+    width: 20px;
+    height: 8px;
+    border-top: 3px solid #333;
+    border-radius: 8px 8px 0 0;
+    bottom: 10px;
+    left: 15px;
 }
 
 /* Sad Character */
 .char.sad {
     background: #90CAF9;
-    border: 3px solid #64B5F6;
+    border-color: #64B5F6;
 }
 
 .char.sad::before,
 .char.sad::after {
     content: '';
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: #333;
     border-radius: 50%;
-    top: 12px;
+    top: 15px;
 }
 
-.char.sad::before { left: 10px; }
-.char.sad::after { right: 10px; }
+.char.sad::before { left: 12px; }
+.char.sad::after { right: 12px; }
 
 .char.sad::after {
     content: '';
     position: absolute;
-    width: 20px;
-    height: 10px;
+    width: 24px;
+    height: 12px;
     border-top: 3px solid #333;
-    border-radius: 10px 10px 0 0;
-    bottom: 8px;
-    left: 10px;
+    border-radius: 12px 12px 0 0;
+    bottom: 10px;
+    left: 13px;
 }
 
 /* Nerd Character */
 .char.nerd {
     background: #81C784;
-    border: 3px solid #66BB6A;
+    border-color: #66BB6A;
 }
 
 .char.nerd::before {
-    content: '🤓';
+    content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
+    width: 30px;
+    height: 20px;
+    border: 3px solid #333;
+    border-radius: 8px;
+    top: 8px;
+    left: 10px;
+}
+
+.char.nerd::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 8px;
+    border-bottom: 3px solid #333;
+    border-radius: 0 0 10px 10px;
+    bottom: 10px;
+    left: 15px;
 }
 
 /* Robot Character */
 .char.robot {
     background: #B0BEC5;
-    border: 3px solid #78909C;
+    border-color: #78909C;
 }
 
 .char.robot::before,
 .char.robot::after {
     content: '';
     position: absolute;
-    width: 8px;
+    width: 10px;
+    height: 10px;
+    background: #333;
+    border-radius: 2px;
+    top: 12px;
+}
+
+.char.robot::before { left: 10px; }
+.char.robot::after { right: 10px; }
+
+.char.robot::after {
+    content: '';
+    position: absolute;
+    width: 20px;
     height: 8px;
     background: #333;
     border-radius: 2px;
-    top: 10px;
-}
-
-.char.robot::before { left: 8px; }
-.char.robot::after { right: 8px; }
-
-.char.robot::after {
-    content: '⎕';
-    position: absolute;
-    color: #333;
-    font-size: 12px;
-    bottom: 8px;
-    left: 14px;
+    bottom: 10px;
+    left: 15px;
 }
 
 /* Ghost Character */
 .char.ghost {
     background: #E1BEE7;
-    border: 3px solid #BA68C8;
+    border-color: #BA68C8;
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
 }
 
@@ -423,42 +485,61 @@ p {
 .char.ghost::after {
     content: '';
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: #333;
     border-radius: 50%;
-    top: 12px;
+    top: 15px;
 }
 
-.char.ghost::before { left: 10px; }
-.char.ghost::after { right: 10px; }
+.char.ghost::before { left: 12px; }
+.char.ghost::after { right: 12px; }
 
 .char.ghost::after {
-    content: '👻';
+    content: '';
     position: absolute;
-    font-size: 14px;
-    bottom: 4px;
-    left: 13px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 12px solid #333;
+    border-radius: 50%;
+    bottom: 6px;
+    left: 17px;
+    transform: rotate(180deg);
 }
 
 /* SEEDY Character */
 .char.seedy {
     background: #FF9800;
-    border: 3px solid #F57C00;
+    border-color: #F57C00;
 }
 
 .char.seedy::before {
-    content: '🤖';
+    content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
+    width: 30px;
+    height: 20px;
+    background: #333;
+    border-radius: 8px;
+    top: 8px;
+    left: 10px;
+}
+
+.char.seedy::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 8px;
+    border-bottom: 3px solid #FFF;
+    border-radius: 0 0 10px 10px;
+    bottom: 10px;
+    left: 13px;
 }
 
 /* Character Selection */
 .character-selection {
-    margin: 2rem 0;
+    margin: 1rem 0;
 }
 
 .characters-grid {
@@ -466,6 +547,9 @@ p {
     grid-template-columns: repeat(5, 1fr);
     gap: 15px;
     margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
 }
 
 .char-option {
@@ -562,7 +646,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .race-info {
@@ -777,8 +861,8 @@ footer {
     }
     
     .car {
-        width: 50px;
-        height: 40px;
+        width: 60px;
+        height: 50px;
     }
     
     .characters-grid {
@@ -814,5 +898,15 @@ footer {
 @media (max-width: 480px) {
     .characters-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .char-container {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .char {
+        width: 40px;
+        height: 40px;
     }
 }

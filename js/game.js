@@ -10,16 +10,58 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentWpmElement = document.getElementById('current-wpm');
     const playerCar = document.getElementById('player-car');
     const opponentCar = document.getElementById('opponent-car');
+    const startRaceBtn = document.getElementById('start-race-btn');
     const restartBtn = document.getElementById('restart-btn');
     const menuBtn = document.getElementById('menu-btn');
     const countdownElement = document.getElementById('countdown');
     const countdownNumber = document.getElementById('countdown-number');
     const quoteNumberElement = document.getElementById('quote-number');
     const playerChar = document.getElementById('player-char');
+    const toggleCharsBtn = document.getElementById('toggle-chars-btn');
+    const charactersGrid = document.querySelector('.characters-grid');
+    const charOptions = document.querySelectorAll('.char-option');
     
     // Load selected character
-    const savedChar = localStorage.getItem('selectedChar') || 'happy';
-    playerChar.className = 'char ' + savedChar;
+    let selectedChar = localStorage.getItem('selectedChar') || 'happy';
+    playerChar.className = 'char ' + selectedChar;
+    
+    // Set active character in grid
+    charOptions.forEach(option => {
+        if (option.dataset.char === selectedChar) {
+            option.classList.add('active');
+        }
+    });
+    
+    // Toggle character selection
+    toggleCharsBtn.addEventListener('click', function() {
+        charactersGrid.classList.toggle('hidden');
+        
+        if (charactersGrid.classList.contains('hidden')) {
+            toggleCharsBtn.textContent = 'Change Character';
+        } else {
+            toggleCharsBtn.textContent = 'Hide Characters';
+        }
+    });
+    
+    // Character selection
+    charOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all options
+            charOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Add active class to clicked option
+            this.classList.add('active');
+            
+            // Update selected character
+            selectedChar = this.dataset.char;
+            
+            // Update player character
+            playerChar.className = 'char ' + selectedChar;
+            
+            // Save selection to localStorage
+            localStorage.setItem('selectedChar', selectedChar);
+        });
+    });
     
     // Game state
     let quotes = [];
@@ -64,9 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set up event listeners
             setupEventListeners();
             
-            // Start the game automatically when page loads
-            startGame();
-            
         } catch (error) {
             console.error('Error loading quotes:', error);
             quoteDisplay.textContent = "Error loading quotes. Please check the console for details.";
@@ -109,6 +148,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset cars
         playerCar.style.left = '5%';
         opponentCar.style.left = '5%';
+        
+        // Reset game state
+        gameActive = false;
+        typingInput.disabled = true;
+        typingInput.placeholder = "Click 'Start Race' to begin...";
     }
     
     // Render the current quote with styling
@@ -136,6 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
         typingInput.addEventListener('contextmenu', preventCopyPaste);
         
         // Button events
+        startRaceBtn.addEventListener('click', startGame);
         restartBtn.addEventListener('click', restartGame);
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
@@ -146,9 +191,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function startGame() {
         if (gameActive) return;
         
+        // Hide character selection if open
+        charactersGrid.classList.add('hidden');
+        toggleCharsBtn.textContent = 'Change Character';
+        
         // Disable input during countdown
         typingInput.disabled = true;
         typingInput.placeholder = "Get ready...";
+        startRaceBtn.disabled = true;
         
         // Show countdown
         countdownElement.classList.remove('hidden');
@@ -401,6 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         endTime = new Date();
         typingInput.disabled = true;
+        startRaceBtn.disabled = false;
         
         // Calculate final WPM based on correct characters only
         const timeInMinutes = (endTime - startTime) / 1000 / 60;
@@ -475,6 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
         accuracyElement.textContent = '100%';
         currentWpmElement.textContent = '0 WPM';
         progressElement.textContent = '0%';
+        startRaceBtn.disabled = false;
         
         // Reset cars
         playerCar.style.left = '5%';
@@ -482,9 +534,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Select a new random quote
         selectRandomQuote();
-        
-        // Start the game again
-        startGame();
     }
     
     // Initialize the game
