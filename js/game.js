@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load selected character
     let selectedChar = localStorage.getItem('selectedChar') || 'happy';
-    playerChar.className = 'char ' + selectedChar;
+    updateCharacterAppearance(playerChar, selectedChar);
     
     // Set active character in grid
     charOptions.forEach(option => {
@@ -31,6 +31,45 @@ document.addEventListener('DOMContentLoaded', function() {
             option.classList.add('active');
         }
     });
+    
+    // Function to update character appearance
+    function updateCharacterAppearance(charElement, charType) {
+        charElement.className = 'char ' + charType;
+        
+        // Add the appropriate inner elements based on character type
+        switch(charType) {
+            case 'happy':
+                charElement.innerHTML = '<div class="mouth"></div>';
+                break;
+            case 'speedy':
+                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div>';
+                break;
+            case 'cool':
+                charElement.innerHTML = '<div class="glasses"></div><div class="mouth"></div>';
+                break;
+            case 'shy':
+                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="blush left"></div><div class="blush right"></div><div class="mouth"></div>';
+                break;
+            case 'sleepy':
+                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="zzz">z</div>';
+                break;
+            case 'mad':
+                charElement.innerHTML = '<div class="eyebrow left"></div><div class="eyebrow right"></div><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
+                break;
+            case 'sad':
+                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
+                break;
+            case 'nerd':
+                charElement.innerHTML = '<div class="glasses"><div class="lens left"></div><div class="lens right"></div></div><div class="mouth"></div>';
+                break;
+            case 'robot':
+                charElement.innerHTML = '<div class="antenna"></div><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
+                break;
+            case 'ghost':
+                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
+                break;
+        }
+    }
     
     // Toggle character selection
     toggleCharsBtn.addEventListener('click', function() {
@@ -56,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedChar = this.dataset.char;
             
             // Update player character
-            playerChar.className = 'char ' + selectedChar;
+            updateCharacterAppearance(playerChar, selectedChar);
             
             // Save selection to localStorage
             localStorage.setItem('selectedChar', selectedChar);
@@ -153,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gameActive = false;
         typingInput.disabled = true;
         typingInput.placeholder = "Click 'Start Race' to begin...";
+        startRaceBtn.disabled = false;
     }
     
     // Render the current quote with styling

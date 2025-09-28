@@ -182,13 +182,14 @@ p {
     position: relative;
     transition: transform 0.3s ease;
     border: 3px solid;
+    background: #FFD700;
 }
 
 .car:hover .char {
     transform: scale(1.1);
 }
 
-/* Happy Character */
+/* Happy Character - Fixed */
 .char.happy {
     background: #FFD700;
     border-color: #FFA500;
@@ -202,24 +203,27 @@ p {
     height: 8px;
     background: #333;
     border-radius: 50%;
-    top: 15px;
+    top: 12px;
 }
 
-.char.happy::before { left: 12px; }
-.char.happy::after { right: 12px; }
+.char.happy::before { 
+    left: 10px; 
+}
+.char.happy::after { 
+    right: 10px; 
+}
 
-.char.happy::after {
-    content: '';
+.char.happy .mouth {
     position: absolute;
-    width: 24px;
-    height: 12px;
+    width: 20px;
+    height: 10px;
     border-bottom: 3px solid #333;
-    border-radius: 0 0 12px 12px;
-    bottom: 10px;
-    left: 13px;
+    border-radius: 0 0 10px 10px;
+    bottom: 12px;
+    left: 15px;
 }
 
-/* Speedy Character */
+/* Speedy Character - Fixed */
 .char.speedy {
     background: #FF6B6B;
     border-color: #FF5252;
@@ -238,67 +242,65 @@ p {
     transform: translate(-50%, -50%);
 }
 
-.char.speedy::after {
-    content: '';
+.char.speedy .eye {
     position: absolute;
     width: 6px;
     height: 6px;
     background: #333;
     border-radius: 50%;
-    bottom: 8px;
-    left: 22px;
+    top: 12px;
 }
 
-/* Cool Character */
+.char.speedy .eye.left { left: 12px; }
+.char.speedy .eye.right { right: 12px; }
+
+/* Cool Character - Fixed */
 .char.cool {
     background: #4FC3F7;
     border-color: #29B6F6;
 }
 
-.char.cool::before {
+.char.cool .glasses {
+    position: absolute;
+    width: 24px;
+    height: 12px;
+    border: 2px solid #333;
+    border-radius: 4px;
+    top: 12px;
+    left: 13px;
+}
+
+.char.cool .glasses::before,
+.char.cool .glasses::after {
     content: '';
     position: absolute;
-    width: 20px;
+    width: 8px;
     height: 8px;
     background: #333;
-    border-radius: 4px;
-    top: 16px;
-    left: 15px;
-    transform: rotate(-10deg);
+    border-radius: 50%;
+    top: 2px;
 }
 
-.char.cool::after {
-    content: '';
+.char.cool .glasses::before { left: 3px; }
+.char.cool .glasses::after { right: 3px; }
+
+.char.cool .mouth {
     position: absolute;
-    width: 20px;
-    height: 8px;
-    background: #333;
-    border-radius: 4px;
-    top: 16px;
-    left: 15px;
-    transform: rotate(10deg);
+    width: 16px;
+    height: 6px;
+    border-bottom: 2px solid #333;
+    border-radius: 0 0 8px 8px;
+    bottom: 12px;
+    left: 17px;
 }
 
-.char.cool::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 8px;
-    border-bottom: 3px solid #333;
-    border-radius: 0 0 10px 10px;
-    bottom: 10px;
-    left: 15px;
-}
-
-/* Shy Character */
+/* Shy Character - Fixed */
 .char.shy {
     background: #FFB6C1;
     border-color: #FF69B4;
 }
 
-.char.shy::before,
-.char.shy::after {
-    content: '';
+.char.shy .eye {
     position: absolute;
     width: 6px;
     height: 6px;
@@ -307,151 +309,203 @@ p {
     top: 15px;
 }
 
-.char.shy::before { left: 10px; }
-.char.shy::after { right: 10px; }
+.char.shy .eye.left { left: 12px; }
+.char.shy .eye.right { right: 12px; }
 
-.char.shy::after {
-    content: '';
+.char.shy .blush {
     position: absolute;
-    width: 16px;
-    height: 6px;
-    border-top: 2px solid #333;
-    border-radius: 8px 8px 0 0;
-    bottom: 12px;
-    left: 17px;
+    width: 8px;
+    height: 4px;
+    background: #FF69B4;
+    border-radius: 50%;
+    top: 20px;
 }
 
-/* Sleepy Character */
+.char.shy .blush.left { left: 8px; }
+.char.shy .blush.right { right: 8px; }
+
+.char.shy .mouth {
+    position: absolute;
+    width: 12px;
+    height: 4px;
+    border-top: 2px solid #333;
+    border-radius: 8px 8px 0 0;
+    bottom: 14px;
+    left: 19px;
+}
+
+/* Sleepy Character - Fixed */
 .char.sleepy {
     background: #A1887F;
     border-color: #8D6E63;
 }
 
-.char.sleepy::before,
-.char.sleepy::after {
-    content: '';
+.char.sleepy .eye {
     position: absolute;
-    width: 6px;
+    width: 8px;
     height: 2px;
     background: #333;
-    top: 16px;
     border-radius: 1px;
+    top: 16px;
 }
 
-.char.sleepy::before { left: 12px; transform: rotate(-10deg); }
-.char.sleepy::after { right: 12px; transform: rotate(10deg); }
+.char.sleepy .eye.left { 
+    left: 12px; 
+    transform: rotate(-10deg);
+}
+.char.sleepy .eye.right { 
+    right: 12px; 
+    transform: rotate(10deg);
+}
 
-.char.sleepy::after {
-    content: 'z';
+.char.sleepy .zzz {
     position: absolute;
     color: #333;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
-    bottom: 8px;
-    left: 18px;
-    transform: rotate(0deg);
+    bottom: 10px;
+    left: 19px;
 }
 
-/* Mad Character */
+/* Mad Character - Fixed */
 .char.mad {
     background: #FF5252;
     border-color: #D32F2F;
 }
 
-.char.mad::before,
-.char.mad::after {
-    content: '';
+.char.mad .eyebrow {
     position: absolute;
     width: 8px;
     height: 3px;
     background: #333;
-    top: 16px;
     border-radius: 1px;
+    top: 10px;
+}
+
+.char.mad .eyebrow.left { 
+    left: 12px; 
     transform: rotate(-20deg);
 }
-
-.char.mad::before { left: 10px; }
-.char.mad::after { right: 10px; transform: rotate(20deg); }
-
-.char.mad::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 8px;
-    border-top: 3px solid #333;
-    border-radius: 8px 8px 0 0;
-    bottom: 10px;
-    left: 15px;
+.char.mad .eyebrow.right { 
+    right: 12px; 
+    transform: rotate(20deg);
 }
 
-/* Sad Character */
+.char.mad .eye {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #333;
+    border-radius: 50%;
+    top: 16px;
+}
+
+.char.mad .eye.left { left: 12px; }
+.char.mad .eye.right { right: 12px; }
+
+.char.mad .mouth {
+    position: absolute;
+    width: 16px;
+    height: 6px;
+    border-top: 3px solid #333;
+    border-radius: 8px 8px 0 0;
+    bottom: 12px;
+    left: 17px;
+}
+
+/* Sad Character - Fixed */
 .char.sad {
     background: #90CAF9;
     border-color: #64B5F6;
 }
 
-.char.sad::before,
-.char.sad::after {
-    content: '';
+.char.sad .eye {
     position: absolute;
     width: 8px;
     height: 8px;
     background: #333;
     border-radius: 50%;
-    top: 15px;
+    top: 14px;
 }
 
-.char.sad::before { left: 12px; }
-.char.sad::after { right: 12px; }
+.char.sad .eye.left { left: 12px; }
+.char.sad .eye.right { right: 12px; }
 
-.char.sad::after {
-    content: '';
+.char.sad .mouth {
     position: absolute;
-    width: 24px;
-    height: 12px;
+    width: 20px;
+    height: 8px;
     border-top: 3px solid #333;
-    border-radius: 12px 12px 0 0;
-    bottom: 10px;
-    left: 13px;
+    border-radius: 8px 8px 0 0;
+    bottom: 14px;
+    left: 15px;
 }
 
-/* Nerd Character */
+/* Nerd Character - Fixed */
 .char.nerd {
     background: #81C784;
     border-color: #66BB6A;
 }
 
-.char.nerd::before {
-    content: '';
+.char.nerd .glasses {
     position: absolute;
-    width: 30px;
-    height: 20px;
-    border: 3px solid #333;
-    border-radius: 8px;
-    top: 8px;
-    left: 10px;
+    width: 26px;
+    height: 14px;
+    border: 2px solid #333;
+    border-radius: 6px;
+    top: 12px;
+    left: 12px;
 }
 
-.char.nerd::after {
-    content: '';
+.char.nerd .lens {
     position: absolute;
-    width: 20px;
+    width: 8px;
     height: 8px;
-    border-bottom: 3px solid #333;
-    border-radius: 0 0 10px 10px;
-    bottom: 10px;
-    left: 15px;
+    background: #333;
+    border-radius: 50%;
+    top: 3px;
 }
 
-/* Robot Character */
+.char.nerd .lens.left { left: 4px; }
+.char.nerd .lens.right { right: 4px; }
+
+.char.nerd .mouth {
+    position: absolute;
+    width: 16px;
+    height: 6px;
+    border-bottom: 2px solid #333;
+    border-radius: 0 0 8px 8px;
+    bottom: 12px;
+    left: 17px;
+}
+
+/* Robot Character - Fixed */
 .char.robot {
     background: #B0BEC5;
     border-color: #78909C;
 }
 
-.char.robot::before,
-.char.robot::after {
+.char.robot .antenna {
+    position: absolute;
+    width: 2px;
+    height: 8px;
+    background: #333;
+    top: -4px;
+    left: 24px;
+}
+
+.char.robot .antenna::after {
     content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #333;
+    border-radius: 50%;
+    top: -2px;
+    left: -1px;
+}
+
+.char.robot .eye {
     position: absolute;
     width: 10px;
     height: 10px;
@@ -460,81 +514,85 @@ p {
     top: 12px;
 }
 
-.char.robot::before { left: 10px; }
-.char.robot::after { right: 10px; }
+.char.robot .eye.left { left: 10px; }
+.char.robot .eye.right { right: 10px; }
 
-.char.robot::after {
-    content: '';
+.char.robot .mouth {
     position: absolute;
     width: 20px;
-    height: 8px;
+    height: 6px;
     background: #333;
     border-radius: 2px;
-    bottom: 10px;
+    bottom: 12px;
     left: 15px;
 }
 
-/* Ghost Character */
+/* Ghost Character - Fixed */
 .char.ghost {
     background: #E1BEE7;
     border-color: #BA68C8;
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
 }
 
-.char.ghost::before,
-.char.ghost::after {
-    content: '';
+.char.ghost .eye {
     position: absolute;
     width: 8px;
     height: 8px;
     background: #333;
     border-radius: 50%;
-    top: 15px;
+    top: 14px;
 }
 
-.char.ghost::before { left: 12px; }
-.char.ghost::after { right: 12px; }
+.char.ghost .eye.left { left: 12px; }
+.char.ghost .eye.right { right: 12px; }
 
-.char.ghost::after {
-    content: '';
+.char.ghost .mouth {
     position: absolute;
     width: 0;
     height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 12px solid #333;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #333;
     border-radius: 50%;
-    bottom: 6px;
-    left: 17px;
-    transform: rotate(180deg);
+    bottom: 10px;
+    left: 19px;
 }
 
-/* SEEDY Character */
+/* SEEDY Character - Fixed */
 .char.seedy {
     background: #FF9800;
     border-color: #F57C00;
 }
 
-.char.seedy::before {
-    content: '';
+.char.seedy .visor {
     position: absolute;
     width: 30px;
-    height: 20px;
+    height: 12px;
     background: #333;
-    border-radius: 8px;
-    top: 8px;
+    border-radius: 6px 6px 0 0;
+    top: 10px;
     left: 10px;
 }
 
-.char.seedy::after {
-    content: '';
+.char.seedy .display {
     position: absolute;
-    width: 24px;
+    width: 20px;
     height: 8px;
-    border-bottom: 3px solid #FFF;
-    border-radius: 0 0 10px 10px;
-    bottom: 10px;
-    left: 13px;
+    background: #4CAF50;
+    border: 1px solid #333;
+    border-radius: 2px;
+    bottom: 12px;
+    left: 15px;
+}
+
+.char.seedy .display::before {
+    content: '^^';
+    position: absolute;
+    color: #333;
+    font-size: 6px;
+    font-weight: bold;
+    top: 1px;
+    left: 4px;
 }
 
 /* Character Selection */
