@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const countdownElement = document.getElementById('countdown');
     const countdownNumber = document.getElementById('countdown-number');
     const quoteNumberElement = document.getElementById('quote-number');
+    const playerChar = document.getElementById('player-char');
+    
+    // Load selected character
+    const savedChar = localStorage.getItem('selectedChar') || 'happy';
+    playerChar.className = 'char ' + savedChar;
     
     // Game state
     let quotes = [];

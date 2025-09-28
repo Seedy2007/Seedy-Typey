@@ -3,6 +3,42 @@ document.addEventListener('DOMContentLoaded', function() {
     const startBtn = document.getElementById('start-btn');
     const instructionsBtn = document.getElementById('instructions-btn');
     const instructions = document.querySelector('.instructions');
+    const charOptions = document.querySelectorAll('.char-option');
+    const playerChar = document.getElementById('player-char');
+    
+    // Character selection
+    let selectedChar = 'happy'; // Default character
+    
+    charOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all options
+            charOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Add active class to clicked option
+            this.classList.add('active');
+            
+            // Update selected character
+            selectedChar = this.dataset.char;
+            
+            // Update player character in demo
+            playerChar.className = 'char ' + selectedChar;
+            
+            // Save selection to localStorage
+            localStorage.setItem('selectedChar', selectedChar);
+        });
+    });
+    
+    // Load saved character selection
+    const savedChar = localStorage.getItem('selectedChar');
+    if (savedChar) {
+        selectedChar = savedChar;
+        charOptions.forEach(option => {
+            if (option.dataset.char === savedChar) {
+                option.classList.add('active');
+                playerChar.className = 'char ' + savedChar;
+            }
+        });
+    }
     
     // Start game button
     startBtn.addEventListener('click', function() {

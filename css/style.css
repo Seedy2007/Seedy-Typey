@@ -145,9 +145,12 @@ p {
 .car {
     position: absolute;
     width: 60px;
-    height: 30px;
+    height: 40px;
     transition: left 0.2s ease-out;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .player, .player-demo {
@@ -160,41 +163,339 @@ p {
     top: 25px;
 }
 
-.car-top {
-    width: 50%;
-    height: 10px;
-    background: inherit;
-    border-radius: 8px 8px 0 0;
-    margin: 0 auto;
-}
-
-.car-body {
-    width: 100%;
-    height: 25px;
-    background: inherit;
-    border-radius: 10px 10px 5px 5px;
+/* Character container */
+.char-container {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
+    z-index: 4;
 }
 
-.car-body::after {
-    content: "";
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background: rgba(0, 0, 0, 0.3);
+/* Base character style */
+.char {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    bottom: 3px;
+    position: relative;
+    transition: transform 0.3s ease;
 }
 
-.car-body::before {
-    content: "";
+.car:hover .char {
+    transform: scale(1.1);
+}
+
+/* Happy Character */
+.char.happy {
+    background: #FFD700;
+    border: 3px solid #FFA500;
+}
+
+.char.happy::before,
+.char.happy::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #333;
+    border-radius: 50%;
+    top: 12px;
+}
+
+.char.happy::before { left: 10px; }
+.char.happy::after { right: 10px; }
+
+.char.happy::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 10px;
+    border-bottom: 3px solid #333;
+    border-radius: 0 0 10px 10px;
+    bottom: 8px;
+    left: 10px;
+}
+
+/* Speedy Character */
+.char.speedy {
+    background: #FF6B6B;
+    border: 3px solid #FF5252;
+}
+
+.char.speedy::before {
+    content: '⚡';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}
+
+/* Cool Character */
+.char.cool {
+    background: #4FC3F7;
+    border: 3px solid #29B6F6;
+}
+
+.char.cool::before {
+    content: '😎';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}
+
+/* Shy Character */
+.char.shy {
+    background: #FFB6C1;
+    border: 3px solid #FF69B4;
+}
+
+.char.shy::before,
+.char.shy::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #333;
+    border-radius: 50%;
+    top: 12px;
+}
+
+.char.shy::before { left: 8px; }
+.char.shy::after { right: 8px; }
+
+.char.shy::after {
+    content: '';
     position: absolute;
     width: 12px;
-    height: 12px;
-    background: rgba(0, 0, 0, 0.3);
+    height: 6px;
+    border-top: 2px solid #333;
+    border-radius: 10px 10px 0 0;
+    bottom: 10px;
+    left: 14px;
+}
+
+/* Sleepy Character */
+.char.sleepy {
+    background: #A1887F;
+    border: 3px solid #8D6E63;
+}
+
+.char.sleepy::before,
+.char.sleepy::after {
+    content: '—';
+    position: absolute;
+    color: #333;
+    font-size: 12px;
+    top: 12px;
+}
+
+.char.sleepy::before { left: 10px; }
+.char.sleepy::after { right: 10px; }
+
+.char.sleepy::after {
+    content: '💤';
+    position: absolute;
+    font-size: 14px;
+    bottom: 6px;
+    left: 13px;
+}
+
+/* Mad Character */
+.char.mad {
+    background: #FF5252;
+    border: 3px solid #D32F2F;
+}
+
+.char.mad::before,
+.char.mad::after {
+    content: '>';
+    position: absolute;
+    color: #333;
+    font-size: 12px;
+    top: 12px;
+}
+
+.char.mad::before { 
+    left: 8px;
+    transform: rotate(-20deg);
+}
+.char.mad::after { 
+    right: 8px;
+    transform: rotate(20deg);
+}
+
+.char.mad::after {
+    content: '⌄';
+    position: absolute;
+    font-size: 14px;
+    bottom: 8px;
+    left: 13px;
+}
+
+/* Sad Character */
+.char.sad {
+    background: #90CAF9;
+    border: 3px solid #64B5F6;
+}
+
+.char.sad::before,
+.char.sad::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #333;
     border-radius: 50%;
-    bottom: 3px;
-    right: 0;
+    top: 12px;
+}
+
+.char.sad::before { left: 10px; }
+.char.sad::after { right: 10px; }
+
+.char.sad::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 10px;
+    border-top: 3px solid #333;
+    border-radius: 10px 10px 0 0;
+    bottom: 8px;
+    left: 10px;
+}
+
+/* Nerd Character */
+.char.nerd {
+    background: #81C784;
+    border: 3px solid #66BB6A;
+}
+
+.char.nerd::before {
+    content: '🤓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}
+
+/* Robot Character */
+.char.robot {
+    background: #B0BEC5;
+    border: 3px solid #78909C;
+}
+
+.char.robot::before,
+.char.robot::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 2px;
+    top: 10px;
+}
+
+.char.robot::before { left: 8px; }
+.char.robot::after { right: 8px; }
+
+.char.robot::after {
+    content: '⎕';
+    position: absolute;
+    color: #333;
+    font-size: 12px;
+    bottom: 8px;
+    left: 14px;
+}
+
+/* Ghost Character */
+.char.ghost {
+    background: #E1BEE7;
+    border: 3px solid #BA68C8;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+
+.char.ghost::before,
+.char.ghost::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #333;
+    border-radius: 50%;
+    top: 12px;
+}
+
+.char.ghost::before { left: 10px; }
+.char.ghost::after { right: 10px; }
+
+.char.ghost::after {
+    content: '👻';
+    position: absolute;
+    font-size: 14px;
+    bottom: 4px;
+    left: 13px;
+}
+
+/* SEEDY Character */
+.char.seedy {
+    background: #FF9800;
+    border: 3px solid #F57C00;
+}
+
+.char.seedy::before {
+    content: '🤖';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}
+
+/* Character Selection */
+.character-selection {
+    margin: 2rem 0;
+}
+
+.characters-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin: 1rem 0;
+}
+
+.char-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.char-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.char-option.active {
+    background: rgba(253, 187, 45, 0.3);
+    border: 2px solid #fdbb2d;
+}
+
+.char-option .char {
+    margin-bottom: 5px;
+}
+
+.char-option span {
+    font-size: 0.9rem;
+    margin-top: 5px;
 }
 
 /* Enhanced finish line */
@@ -477,7 +778,11 @@ footer {
     
     .car {
         width: 50px;
-        height: 30px;
+        height: 40px;
+    }
+    
+    .characters-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
     
     .quote-display {
@@ -503,5 +808,11 @@ footer {
     
     .track {
         height: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .characters-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
