@@ -2,27 +2,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const startBtn = document.getElementById('start-btn');
     const instructionsBtn = document.getElementById('instructions-btn');
-    const toggleCharsBtn = document.getElementById('toggle-chars-btn');
     const instructions = document.querySelector('.instructions');
-    const charactersGrid = document.querySelector('.characters-grid');
     const charOptions = document.querySelectorAll('.char-option');
     const playerChar = document.getElementById('player-char');
     
     // Character selection
     let selectedChar = 'happy'; // Default character
     
-    // Toggle character selection
-    toggleCharsBtn.addEventListener('click', function() {
-        charactersGrid.classList.toggle('hidden');
-        
-        if (charactersGrid.classList.contains('hidden')) {
-            toggleCharsBtn.textContent = 'Select Your Character';
-        } else {
-            toggleCharsBtn.textContent = 'Hide Characters';
-        }
-    });
-    
-    // Character selection
     charOptions.forEach(option => {
         option.addEventListener('click', function() {
             // Remove active class from all options
@@ -35,54 +21,14 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedChar = this.dataset.char;
             
             // Update player character in demo
-            updateCharacterAppearance(playerChar, selectedChar);
+            const charExpression = this.querySelector('.char').textContent;
+            playerChar.textContent = charExpression;
+            playerChar.className = 'char ' + selectedChar;
             
             // Save selection to localStorage
             localStorage.setItem('selectedChar', selectedChar);
         });
     });
-    
-        // Function to update character appearance
-    function updateCharacterAppearance(charElement, charType) {
-        charElement.className = 'char ' + charType;
-        
-        // Add the appropriate inner elements based on character type
-        switch(charType) {
-            case 'happy':
-                charElement.innerHTML = '<div class="mouth"></div>';
-                break;
-            case 'speedy':
-                charElement.innerHTML = '<div class="goggles"></div><div class="mouth"></div>';
-                break;
-            case 'cool':
-                charElement.innerHTML = '<div class="sunglasses"></div><div class="smirk"></div>';
-                break;
-            case 'shy':
-                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="blush left"></div><div class="blush right"></div><div class="mouth"></div>';
-                break;
-            case 'sleepy':
-                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="zzz">z</div>';
-                break;
-            case 'mad':
-                charElement.innerHTML = '<div class="eyebrow left"></div><div class="eyebrow right"></div><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
-                break;
-            case 'sad':
-                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
-                break;
-            case 'nerd':
-                charElement.innerHTML = '<div class="glasses"><div class="lens left"></div><div class="lens right"></div></div><div class="mouth"></div>';
-                break;
-            case 'robot':
-                charElement.innerHTML = '<div class="antenna"></div><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
-                break;
-            case 'ghost':
-                charElement.innerHTML = '<div class="eye left"></div><div class="eye right"></div><div class="mouth"></div>';
-                break;
-            case 'seedy':
-                charElement.innerHTML = '<div class="face">>⩊<</div>';
-                break;
-        }
-    }
     
     // Load saved character selection
     const savedChar = localStorage.getItem('selectedChar');
@@ -91,7 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
         charOptions.forEach(option => {
             if (option.dataset.char === savedChar) {
                 option.classList.add('active');
-                updateCharacterAppearance(playerChar, savedChar);
+                const charExpression = option.querySelector('.char').textContent;
+                playerChar.textContent = charExpression;
+                playerChar.className = 'char ' + savedChar;
             }
         });
     }
