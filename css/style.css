@@ -144,8 +144,6 @@ p {
 /* Car positioning in separate lanes */
 .car {
     position: absolute;
-    width: 60px;
-    height: 40px;
     transition: left 0.2s ease-out;
     z-index: 2;
     display: flex;
@@ -154,19 +152,21 @@ p {
 }
 
 .player, .player-demo {
-    background: #4CAF50;
     bottom: 25px;
 }
 
 .opponent, .opponent-demo {
-    background: #f44336;
     top: 25px;
+}
+
+/* Remove rectangular background from cars */
+.player, .player-demo,
+.opponent, .opponent-demo {
+    background: none !important;
 }
 
 /* Character container */
 .char-container {
-    width: 50px;
-    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,84 +176,104 @@ p {
 
 /* Base character style */
 .char {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
     position: relative;
     transition: transform 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    border-radius: 50%;
     background: var(--char-color, #FFD700);
     border: 3px solid var(--char-border, #FFA500);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Character sizes based on kaomoji complexity */
+.char.happy,
+.char.speedy,
+.char.cool,
+.char.shy,
+.char.sleepy,
+.char.mad,
+.char.sad {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+}
+
+.char.nerd,
+.char.robot {
+    width: 55px;
+    height: 55px;
+    font-size: 18px;
+}
+
+.char.ghost {
+    width: 60px;
+    height: 60px;
+    font-size: 16px;
+}
+
+.char.seedy {
+    width: 55px;
+    height: 55px;
+    font-size: 18px;
 }
 
 .car:hover .char {
     transform: scale(1.1);
 }
 
-/* Happy Character */
+/* Character colors */
 .char.happy {
     --char-color: #FFD700;
     --char-border: #FFA500;
 }
 
-/* Speedy Character */
 .char.speedy {
     --char-color: #FF6B6B;
     --char-border: #FF5252;
 }
 
-/* Cool Character */
 .char.cool {
     --char-color: #4FC3F7;
     --char-border: #29B6F6;
 }
 
-/* Shy Character */
 .char.shy {
     --char-color: #FFB6C1;
     --char-border: #FF69B4;
 }
 
-/* Sleepy Character */
 .char.sleepy {
     --char-color: #A1887F;
     --char-border: #8D6E63;
 }
 
-/* Mad Character */
 .char.mad {
     --char-color: #FF5252;
     --char-border: #D32F2F;
 }
 
-/* Sad Character */
 .char.sad {
     --char-color: #90CAF9;
     --char-border: #64B5F6;
 }
 
-/* Nerd Character */
 .char.nerd {
     --char-color: #81C784;
     --char-border: #66BB6A;
 }
 
-/* Robot Character */
 .char.robot {
     --char-color: #B0BEC5;
     --char-border: #78909C;
 }
 
-/* Ghost Character */
 .char.ghost {
     --char-color: #E1BEE7;
     --char-border: #BA68C8;
 }
 
-/* SEEDY Character */
 .char.seedy {
     --char-color: #FF9800;
     --char-border: #F57C00;
@@ -281,7 +301,7 @@ p {
     cursor: pointer;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.1);
-    min-height: 80px;
+    min-height: 100px;
 }
 
 .char-option:hover {
@@ -576,11 +596,6 @@ footer {
         margin: 1rem 0;
     }
     
-    .car {
-        width: 50px;
-        height: 40px;
-    }
-    
     .characters-grid {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -609,6 +624,33 @@ footer {
     .track {
         height: 180px;
     }
+    
+    /* Adjust character sizes for mobile */
+    .char.happy,
+    .char.speedy,
+    .char.cool,
+    .char.shy,
+    .char.sleepy,
+    .char.mad,
+    .char.sad {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    .char.nerd,
+    .char.robot,
+    .char.seedy {
+        width: 50px;
+        height: 50px;
+        font-size: 16px;
+    }
+    
+    .char.ghost {
+        width: 55px;
+        height: 55px;
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -616,7 +658,35 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
     
-    .char {
+    .char-option {
+        min-height: 90px;
+        padding: 10px;
+    }
+    
+    /* Further adjust character sizes for small mobile */
+    .char.happy,
+    .char.speedy,
+    .char.cool,
+    .char.shy,
+    .char.sleepy,
+    .char.mad,
+    .char.sad {
+        width: 40px;
+        height: 40px;
         font-size: 16px;
+    }
+    
+    .char.nerd,
+    .char.robot,
+    .char.seedy {
+        width: 45px;
+        height: 45px;
+        font-size: 14px;
+    }
+    
+    .char.ghost {
+        width: 50px;
+        height: 50px;
+        font-size: 12px;
     }
 }
