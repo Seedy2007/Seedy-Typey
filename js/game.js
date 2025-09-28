@@ -12,10 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const opponentCar = document.getElementById('opponent-car');
     const restartBtn = document.getElementById('restart-btn');
     const menuBtn = document.getElementById('menu-btn');
+    const startRaceBtn = document.getElementById('start-race-btn');
     const countdownElement = document.getElementById('countdown');
     const countdownNumber = document.getElementById('countdown-number');
     const quoteNumberElement = document.getElementById('quote-number');
     const playerChar = document.getElementById('player-char');
+    const changeCharBtn = document.getElementById('change-char-btn');
+    const charPopup = document.getElementById('char-popup');
+    const closeCharPopup = document.getElementById('close-char-popup');
+    const charOptions = document.querySelectorAll('.char-option');
     
     // Character expressions mapping
     const charExpressions = {
@@ -32,9 +37,49 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     // Load selected character
-    const savedChar = localStorage.getItem('selectedChar') || 'happy';
-    playerChar.textContent = charExpressions[savedChar] || '•ᴗ•';
-    playerChar.className = 'char ' + savedChar;
+    let selectedChar = localStorage.getItem('selectedChar') || 'happy';
+    updatePlayerCharacter(selectedChar);
+    
+    // Update player character function
+    function updatePlayerCharacter(charType) {
+        selectedChar = charType;
+        playerChar.textContent = charExpressions[charType] || '•ᴗ•';
+        playerChar.className = 'char ' + charType;
+        localStorage.setItem('selectedChar', charType);
+    }
+    
+    // Character selection popup
+    changeCharBtn.addEventListener('click', function() {
+        charPopup.classList.remove('hidden');
+        
+        // Update active state in popup
+        charOptions.forEach(option => {
+            option.classList.remove('active');
+            if (option.dataset.char === selectedChar) {
+                option.classList.add('active');
+            }
+        });
+    });
+    
+    closeCharPopup.addEventListener('click', function() {
+        charPopup.classList.add('hidden');
+    });
+    
+    charOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const charType = this.dataset.char;
+            updatePlayerCharacter(charType);
+            
+            // Update active state
+            charOptions.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Close popup after selection
+            setTimeout(() => {
+                charPopup.classList.add('hidden');
+            }, 500);
+        });
+    });
     
     // Game state
     let quotes = [];
@@ -78,9 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Set up event listeners
             setupEventListeners();
-            
-            // Start the game automatically when page loads
-            startGame();
             
         } catch (error) {
             console.error('Error loading quotes:', error);
@@ -151,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
         typingInput.addEventListener('contextmenu', preventCopyPaste);
         
         // Button events
+        startRaceBtn.addEventListener('click', startGame);
         restartBtn.addEventListener('click', restartGame);
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
@@ -160,6 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start the game with countdown
     function startGame() {
         if (gameActive) return;
+        
+        // Disable start button during game
+        startRaceBtn.disabled = true;
         
         // Disable input during countdown
         typingInput.disabled = true;
@@ -417,6 +463,9 @@ document.addEventListener('DOMContentLoaded', function() {
         endTime = new Date();
         typingInput.disabled = true;
         
+        // Re-enable start button
+        startRaceBtn.disabled = false;
+        
         // Calculate final WPM based on correct characters only
         const timeInMinutes = (endTime - startTime) / 1000 / 60;
         const finalWpm = Math.round(correctCharacters / 5 / timeInMinutes) || 0;
@@ -484,6 +533,9 @@ document.addEventListener('DOMContentLoaded', function() {
         gameEnded = false;
         timeLeft = 60;
         
+        // Re-enable start button
+        startRaceBtn.disabled = false;
+        
         // Reset UI
         timerElement.textContent = timeLeft;
         wpmElement.textContent = '0';
@@ -497,9 +549,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Select a new random quote
         selectRandomQuote();
-        
-        // Start the game again
-        startGame();
     }
     
     // Initialize the game

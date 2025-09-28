@@ -2,12 +2,25 @@
 document.addEventListener('DOMContentLoaded', function() {
     const startBtn = document.getElementById('start-btn');
     const instructionsBtn = document.getElementById('instructions-btn');
+    const selectCharBtn = document.getElementById('select-char-btn');
     const instructions = document.querySelector('.instructions');
+    const characterSelection = document.querySelector('.character-selection');
     const charOptions = document.querySelectorAll('.char-option');
     const playerChar = document.getElementById('player-char');
     
     // Character selection
     let selectedChar = 'happy'; // Default character
+    
+    // Toggle character selection
+    selectCharBtn.addEventListener('click', function() {
+        characterSelection.classList.toggle('hidden');
+        
+        if (characterSelection.classList.contains('hidden')) {
+            selectCharBtn.textContent = 'Select Your Character';
+        } else {
+            selectCharBtn.textContent = 'Hide Character Selection';
+        }
+    });
     
     charOptions.forEach(option => {
         option.addEventListener('click', function() {

@@ -82,6 +82,11 @@ p {
     background: linear-gradient(to right, #2196F3, #03A9F4);
 }
 
+.btn.small {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
 .btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
@@ -181,102 +186,112 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    background: var(--char-color, #FFD700);
-    border: 3px solid var(--char-border, #FFA500);
+    color: white;
+    font-weight: bold;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Character sizes based on kaomoji complexity */
-.char.happy,
-.char.speedy,
-.char.cool,
-.char.shy,
-.char.sleepy,
-.char.mad,
-.char.sad {
+/* Unique shapes for each character */
+.char.happy {
     width: 50px;
     height: 50px;
     font-size: 20px;
-}
-
-.char.nerd,
-.char.robot {
-    width: 55px;
-    height: 55px;
-    font-size: 18px;
-}
-
-.char.ghost {
-    width: 60px;
-    height: 60px;
-    font-size: 16px;
-}
-
-.char.seedy {
-    width: 55px;
-    height: 55px;
-    font-size: 18px;
-}
-
-.car:hover .char {
-    transform: scale(1.1);
-}
-
-/* Character colors */
-.char.happy {
-    --char-color: #FFD700;
-    --char-border: #FFA500;
+    background: #E6B800; /* Darker yellow */
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+    transform: rotate(5deg);
 }
 
 .char.speedy {
-    --char-color: #FF6B6B;
-    --char-border: #FF5252;
+    width: 55px;
+    height: 45px;
+    font-size: 18px;
+    background: #CC0000; /* Darker red */
+    border-radius: 60% 40% 40% 60% / 50% 50% 50% 50%;
+    transform: rotate(-10deg);
 }
 
 .char.cool {
-    --char-color: #4FC3F7;
-    --char-border: #29B6F6;
+    width: 52px;
+    height: 52px;
+    font-size: 20px;
+    background: #0066CC; /* Darker blue */
+    border-radius: 40% 40% 40% 40% / 50% 50% 50% 50%;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 .char.shy {
-    --char-color: #FFB6C1;
-    --char-border: #FF69B4;
+    width: 48px;
+    height: 52px;
+    font-size: 18px;
+    background: #CC6699; /* Darker pink */
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
 }
 
 .char.sleepy {
-    --char-color: #A1887F;
-    --char-border: #8D6E63;
+    width: 54px;
+    height: 48px;
+    font-size: 18px;
+    background: #664433; /* Darker brown */
+    border-radius: 40% 40% 50% 50% / 60% 60% 40% 40%;
+    transform: rotate(-5deg);
 }
 
 .char.mad {
-    --char-color: #FF5252;
-    --char-border: #D32F2F;
+    width: 52px;
+    height: 52px;
+    font-size: 20px;
+    background: #CC3333; /* Darker angry red */
+    border-radius: 30% 30% 50% 50% / 40% 40% 60% 60%;
+    clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
 }
 
 .char.sad {
-    --char-color: #90CAF9;
-    --char-border: #64B5F6;
+    width: 50px;
+    height: 54px;
+    font-size: 18px;
+    background: #3366CC; /* Darker blue */
+    border-radius: 40% 40% 50% 50% / 60% 60% 40% 40%;
+    transform: rotate(3deg);
 }
 
 .char.nerd {
-    --char-color: #81C784;
-    --char-border: #66BB6A;
+    width: 56px;
+    height: 50px;
+    font-size: 16px;
+    background: #339966; /* Darker green */
+    border-radius: 40% 40% 40% 40% / 50% 50% 50% 50%;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
 }
 
 .char.robot {
-    --char-color: #B0BEC5;
-    --char-border: #78909C;
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+    background: #666666; /* Darker gray */
+    border-radius: 20% 20% 20% 20% / 30% 30% 30% 30%;
+    clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
 }
 
 .char.ghost {
-    --char-color: #E1BEE7;
-    --char-border: #BA68C8;
+    width: 58px;
+    height: 56px;
+    font-size: 16px;
+    background: #9933CC; /* Darker purple */
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 75% 100%, 50% 85%, 25% 100%, 0% 75%);
 }
 
 .char.seedy {
-    --char-color: #FF9800;
-    --char-border: #F57C00;
+    width: 55px;
+    height: 55px;
+    font-size: 18px;
+    background: #CC6600; /* Darker orange */
+    border-radius: 45% 45% 45% 45% / 55% 55% 45% 45%;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.car:hover .char {
+    transform: scale(1.1) rotate(5deg);
 }
 
 /* Character Selection */
@@ -316,6 +331,35 @@ p {
 
 .char-option .char {
     margin: 0;
+}
+
+/* Character selection popup */
+.character-selection-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.char-popup-content {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+    border: 2px solid #fdbb2d;
+}
+
+.char-popup-content .characters-grid {
+    grid-template-columns: repeat(5, 1fr);
+    margin: 1.5rem 0;
 }
 
 /* Enhanced finish line */
@@ -383,6 +427,8 @@ header {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .race-info {
@@ -600,6 +646,10 @@ footer {
         grid-template-columns: repeat(3, 1fr);
     }
     
+    .char-popup-content .characters-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
     .quote-display {
         font-size: 1.2rem;
         min-height: 120px;
@@ -626,30 +676,12 @@ footer {
     }
     
     /* Adjust character sizes for mobile */
-    .char.happy,
-    .char.speedy,
-    .char.cool,
-    .char.shy,
-    .char.sleepy,
-    .char.mad,
-    .char.sad {
-        width: 45px;
-        height: 45px;
-        font-size: 18px;
+    .char {
+        transform: none !important;
     }
     
-    .char.nerd,
-    .char.robot,
-    .char.seedy {
-        width: 50px;
-        height: 50px;
-        font-size: 16px;
-    }
-    
-    .char.ghost {
-        width: 55px;
-        height: 55px;
-        font-size: 14px;
+    .car:hover .char {
+        transform: scale(1.1) !important;
     }
 }
 
@@ -658,35 +690,12 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
     
+    .char-popup-content .characters-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
     .char-option {
         min-height: 90px;
         padding: 10px;
-    }
-    
-    /* Further adjust character sizes for small mobile */
-    .char.happy,
-    .char.speedy,
-    .char.cool,
-    .char.shy,
-    .char.sleepy,
-    .char.mad,
-    .char.sad {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-    
-    .char.nerd,
-    .char.robot,
-    .char.seedy {
-        width: 45px;
-        height: 45px;
-        font-size: 14px;
-    }
-    
-    .char.ghost {
-        width: 50px;
-        height: 50px;
-        font-size: 12px;
     }
 }

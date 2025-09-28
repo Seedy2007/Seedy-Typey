@@ -14,7 +14,48 @@
                 <div class="race-info">
                     <span id="quote-number">Random Quote</span>
                 </div>
+                <button class="btn small" id="change-char-btn">Change Character</button>
             </header>
+            
+            <div class="character-selection-popup hidden" id="char-popup">
+                <div class="char-popup-content">
+                    <h3>Choose Your Character</h3>
+                    <div class="characters-grid">
+                        <div class="char-option" data-char="happy">
+                            <div class="char happy">•ᴗ•</div>
+                        </div>
+                        <div class="char-option" data-char="speedy">
+                            <div class="char speedy">•̀⤙•́</div>
+                        </div>
+                        <div class="char-option" data-char="cool">
+                            <div class="char cool">¬‿¬</div>
+                        </div>
+                        <div class="char-option" data-char="shy">
+                            <div class="char shy">◕‿◕</div>
+                        </div>
+                        <div class="char-option" data-char="sleepy">
+                            <div class="char sleepy">◕‸◕</div>
+                        </div>
+                        <div class="char-option" data-char="mad">
+                            <div class="char mad">≖_≖</div>
+                        </div>
+                        <div class="char-option" data-char="sad">
+                            <div class="char sad">˙◠˙</div>
+                        </div>
+                        <div class="char-option" data-char="nerd">
+                            <div class="char nerd">╭ರ_•́</div>
+                        </div>
+                        <div class="char-option" data-char="robot">
+                            <div class="char robot">≖⩊≖</div>
+                        </div>
+                        <div class="char-option" data-char="ghost">
+                            <div class="char ghost">✿◕‿◕</div>
+                        </div>
+                    </div>
+                    <button class="btn" id="close-char-popup">Close</button>
+                </div>
+            </div>
+            
             <div class="race-container">
                 <div class="track">
                     <div class="track-lane">
@@ -64,13 +105,14 @@
                 <div class="quote-display" id="quote-display">
                     Get ready to type! The text will appear when the race starts.
                 </div>
-                <input type="text" class="typing-input" id="typing-input" placeholder="Wait for countdown to start typing..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
+                <input type="text" class="typing-input" id="typing-input" placeholder="Click 'Start Race' to begin..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
                 <div class="current-wpm">
                     Current Speed: <span id="current-wpm">0 WPM</span>
                 </div>
             </div>
             
             <div class="game-controls">
+                <button class="btn primary" id="start-race-btn">Start Race</button>
                 <button class="btn" id="restart-btn">Restart Race</button>
                 <button class="btn secondary" id="menu-btn">Back to Menu</button>
             </div>
