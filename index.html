@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seedy-Typey | Main Menu</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <div class="container">
@@ -30,7 +30,7 @@
             </div>
             
             <!-- Name Selection Modal -->
-            <div class="modal" id="name-modal">
+            <div class="modal hidden" id="name-modal">
                 <div class="modal-content">
                     <h2>Welcome to Seedy-Typey!</h2>
                     <p>Choose your display name:</p>
@@ -124,7 +124,7 @@
                             <ul id="players-list"></ul>
                         </div>
                         <div class="room-controls">
-                            <button class="btn primary" id="start-private-race-btn">Start Race</button>
+                            <button class="btn primary" id="start-private-race-btn" disabled>Start Race</button>
                             <button class="btn" id="leave-room-btn">Leave Room</button>
                         </div>
                     </div>
@@ -153,6 +153,9 @@
                         <li>Your typing speed (WPM) will move you forward</li>
                         <li>Beat your opponents to the finish line to win!</li>
                         <li>No cheating - copy/paste is disabled!</li>
+                        <li><strong>Single Player:</strong> Race against SEEDY the typing master</li>
+                        <li><strong>Public Race:</strong> Race against random players online</li>
+                        <li><strong>Private Race:</strong> Create a room and invite friends</li>
                     </ul>
                 </div>
             </div>
@@ -162,7 +165,7 @@
     </div>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="js/multiplayer.js"></script>
-    <script src="js/main.js"></script>
+    <script src="./js/multiplayer.js"></script>
+    <script src="./js/main.js"></script>
 </body>
 </html>

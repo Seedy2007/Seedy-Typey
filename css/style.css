@@ -788,3 +788,36 @@ footer {
 .room-controls {
     margin-top: 1.5rem;
 }
+
+/* Add to existing style.css */
+.players-list {
+    margin: 1rem 0;
+    text-align: left;
+}
+
+.player-item {
+    background: rgba(255,255,255,0.1);
+    padding: 0.5rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.player-name {
+    font-weight: bold;
+}
+
+.player-stats {
+    font-size: 0.9rem;
+    color: #fdbb2d;
+}
+
+/* Multiplayer track adjustments */
+#multiplayer-track {
+    min-height: 250px;
+}
+
+#multiplayer-track .track-lane {
+    height: 60px;
+}

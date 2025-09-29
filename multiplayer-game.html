@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seedy-Typey | Multiplayer Race</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="game-interface">
+            <header>
+                <h1>Multiplayer Race</h1>
+                <div class="race-info">
+                    <span id="room-id">Loading...</span>
+                </div>
+                <button class="btn small" id="menu-btn">Leave Race</button>
+            </header>
+            
+            <div class="race-container">
+                <div class="track" id="multiplayer-track">
+                    <!-- Player lanes will be dynamically added -->
+                    <div class="finish-line"></div>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Your WPM</div>
+                        <div class="stat-value" id="wpm">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timer">--</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Accuracy</div>
+                        <div class="stat-value" id="accuracy">100%</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Progress</div>
+                        <div class="stat-value" id="progress">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-container">
+                <div class="countdown hidden" id="countdown">
+                    <span id="countdown-number">3</span>
+                </div>
+                <div class="quote-display" id="quote-display">
+                    Waiting for race to start...
+                </div>
+                <input type="text" class="typing-input" id="typing-input" placeholder="Race will start soon..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
+                <div class="current-wpm">
+                    Current Speed: <span id="current-wpm">0 WPM</span>
+                </div>
+            </div>
+            
+            <div class="players-list" id="players-list">
+                <h3>Players</h3>
+                <div id="players-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="./js/multiplayer-game.js"></script>
+</body>
+</html>

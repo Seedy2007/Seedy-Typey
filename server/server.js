@@ -7,14 +7,14 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const server = http.createServer(app);
 
-// UPDATED: Configure CORS for your frontend (local and potential GitHub Pages)
+// UPDATED: Configure CORS for GitHub Pages
 app.use(cors({
   origin: [
+    "https://seedy2007.github.io",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5500",
-    "http://127.0.0.1:5500",
-    "file://" // Allow file protocol for local HTML files
+    "http://127.0.0.1:5500"
   ],
   credentials: true
 }));
@@ -22,21 +22,22 @@ app.use(cors({
 const io = socketIo(server, {
   cors: {
     origin: [
+      "https://seedy2007.github.io",
       "http://localhost:3000",
       "http://127.0.0.1:3000", 
       "http://localhost:5500",
-      "http://127.0.0.1:5500",
-      "file://"
+      "http://127.0.0.1:5500"
     ],
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
 // Game state storage
-const publicRooms = new Map();    // Public room for random matchmaking
-const privateRooms = new Map();   // roomId -> room data
-const players = new Map();        // socket.id -> player data
-const playerSessions = new Map(); // playerId -> persistent data
+const publicRooms = new Map();
+const privateRooms = new Map();
+const players = new Map();
+const playerSessions = new Map();
 
 // Sample quotes for multiplayer
 const multiplayerQuotes = [
@@ -64,54 +65,6 @@ app.get('/', (req, res) => {
     connectedPlayers: players.size,
     timestamp: new Date().toISOString()
   });
-});
-
-// Simple test endpoint
-app.get('/test', (req, res) => {
-  res.json({ 
-    message: 'Server is working!',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// Get server status
-app.get('/status', (req, res) => {
-  res.json({
-    status: 'healthy',
-    serverTime: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    players: players.size,
-    publicRooms: publicRooms.size,
-    privateRooms: privateRooms.size
-  });
-});
-
-// Get player profile by ID
-app.get('/player/:playerId', (req, res) => {
-  const playerId = req.params.playerId;
-  const playerData = playerSessions.get(playerId);
-  
-  if (playerData) {
-    res.json({ success: true, player: playerData });
-  } else {
-    res.json({ success: false, message: 'Player not found' });
-  }
-});
-
-// Update player profile
-app.post('/player/:playerId', (req, res) => {
-  const playerId = req.params.playerId;
-  const { name, character } = req.body;
-  
-  const playerData = playerSessions.get(playerId) || { id: playerId };
-  playerData.name = name;
-  playerData.character = character;
-  playerData.lastSeen = new Date().toISOString();
-  
-  playerSessions.set(playerId, playerData);
-  res.json({ success: true, player: playerData });
 });
 
 // Socket.io connection handling
@@ -259,15 +212,12 @@ io.on('connection', (socket) => {
     players.set(socket.id, { ...players.get(socket.id), roomId });
 
     // Notify all players in the room
-    io.to(roomId).emit('privateRoomUpdated', { 
-      room, 
-      newPlayer: { name: player.name, character: player.character }
-    });
+    io.to(roomId).emit('privateRoomUpdated', { room });
 
     console.log(`Player ${player.name} joined private room: ${roomId}`);
   });
 
-  // Player ready status (for private rooms)
+  // Player ready status
   socket.on('playerReady', () => {
     const player = players.get(socket.id);
     if (!player || !player.roomId) return;
@@ -326,7 +276,7 @@ io.on('connection', (socket) => {
         
         // Check if this player won
         const finishedPlayers = room.players.filter(p => p.finished);
-        if (finishedPlayers.length === 1) { // This player finished first
+        if (finishedPlayers.length === 1) {
           playerData.wins = (playerData.wins || 0) + 1;
           socket.emit('raceFinished', { position: 1, wpm: data.wpm });
         } else {
@@ -353,42 +303,6 @@ io.on('connection', (socket) => {
       } else {
         io.to(room.id).emit('privateRoomUpdated', { room });
       }
-    }
-  });
-
-  // Play again in same room
-  socket.on('playAgain', () => {
-    const player = players.get(socket.id);
-    if (!player || !player.roomId) return;
-
-    let room;
-    if (player.roomId === 'public') {
-      room = publicRooms.get('public');
-    } else {
-      room = privateRooms.get(player.roomId);
-    }
-
-    if (!room) return;
-
-    // Reset room for new race
-    room.status = 'waiting';
-    room.startTime = null;
-    room.quote = getRandomQuote();
-    
-    // Reset player states
-    room.players.forEach(player => {
-      player.ready = false;
-      player.progress = 0;
-      player.wpm = 0;
-      player.accuracy = 100;
-      player.finished = false;
-      player.finishTime = null;
-    });
-
-    if (player.roomId === 'public') {
-      io.to('public').emit('publicRoomReset', { room });
-    } else {
-      io.to(room.id).emit('privateRoomReset', { room });
     }
   });
 
@@ -466,7 +380,6 @@ function checkPublicRaceStart(publicRoom) {
   const readyPlayers = publicRoom.players.filter(p => p.ready);
   const totalPlayers = publicRoom.players.length;
 
-  // Start if 2+ players are ready, or automatically start when 4 players join
   if ((readyPlayers.length >= 2 && totalPlayers >= 2) || totalPlayers === 4) {
     if (publicRoom.status === 'waiting') {
       startRoomCountdown('public', 'public');
@@ -532,11 +445,8 @@ function handlePlayerLeave(socketId) {
       const publicRoom = publicRooms.get('public');
       if (publicRoom) {
         publicRoom.players = publicRoom.players.filter(p => p.socketId !== socketId);
-        
-        // Notify remaining players
         io.to('public').emit('publicRoomUpdated', { room: publicRoom });
 
-        // Clean up empty public room
         if (publicRoom.players.length === 0) {
           publicRooms.delete('public');
         }
@@ -544,20 +454,15 @@ function handlePlayerLeave(socketId) {
     } else {
       const room = privateRooms.get(player.roomId);
       if (room) {
-        // Remove player from room
         room.players = room.players.filter(p => p.socketId !== socketId);
         
-        // Notify remaining players
         io.to(room.id).emit('playerLeft', { 
           playerName: player.name 
         });
 
-        // Clean up empty rooms
         if (room.players.length === 0) {
           privateRooms.delete(room.id);
-          console.log(`Private room deleted: ${room.id}`);
         } else {
-          // Update remaining players
           io.to(room.id).emit('privateRoomUpdated', { room });
         }
       }
@@ -567,24 +472,8 @@ function handlePlayerLeave(socketId) {
   players.delete(socketId);
 }
 
-// FIXED: Start server with proper Render configuration
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Seedy-Typey multiplayer server running on port ${PORT}`);
-  console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`✅ Health check available at: http://0.0.0.0:${PORT}/`);
-  console.log(`✅ Test endpoint: http://0.0.0.0:${PORT}/test`);
-}).on('error', (err) => {
-  console.error('❌ Server failed to start:', err);
-  process.exit(1);
-});
-
-// Handle graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
 });

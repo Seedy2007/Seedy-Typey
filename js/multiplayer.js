@@ -59,12 +59,17 @@ class MultiplayerManager {
     }
 
     connectToServer() {
-        // UPDATED: Connect to your deployed Render backend
-        this.socket = io('https://seedy-typey-backend.onrender.com');
+        console.log('🔄 Connecting to server...');
+        
+        // UPDATED: Better connection handling
+        this.socket = io('https://seedy-typey-backend.onrender.com', {
+            transports: ['websocket', 'polling'],
+            timeout: 10000
+        });
         
         this.socket.on('connect', () => {
             this.connected = true;
-            console.log('Connected to multiplayer server');
+            console.log('✅ Connected to multiplayer server');
             
             // Identify ourselves to the server
             this.socket.emit('identify', {
@@ -74,9 +79,14 @@ class MultiplayerManager {
             });
         });
 
+        this.socket.on('connect_error', (error) => {
+            console.error('❌ Connection failed:', error);
+            this.showNotification('Failed to connect to server. Please refresh and try again.');
+        });
+
         this.socket.on('identified', (data) => {
             this.playerId = data.playerId;
-            console.log('Identified as:', data.player);
+            console.log('👤 Identified as:', data.player);
         });
 
         this.setupSocketListeners();
@@ -95,7 +105,7 @@ class MultiplayerManager {
         });
 
         this.socket.on('privateCountdownStarted', (data) => {
-            this.startCountdown(data.countdown, 'private');
+            this.showCountdown(data.countdown, 'private');
         });
 
         this.socket.on('privateCountdown', (data) => {
@@ -112,7 +122,7 @@ class MultiplayerManager {
         });
 
         this.socket.on('publicCountdownStarted', (data) => {
-            this.startCountdown(data.countdown, 'public');
+            this.showCountdown(data.countdown, 'public');
         });
 
         this.socket.on('publicCountdown', (data) => {
@@ -139,47 +149,47 @@ class MultiplayerManager {
 
     setupEventListeners() {
         // Name modal
-        document.getElementById('save-player-btn').addEventListener('click', () => {
+        document.getElementById('save-player-btn')?.addEventListener('click', () => {
             this.savePlayerInfo();
         });
 
         // Change name button
-        document.getElementById('change-name-btn').addEventListener('click', () => {
+        document.getElementById('change-name-btn')?.addEventListener('click', () => {
             this.showNameModal();
         });
 
         // Game mode buttons
-        document.getElementById('single-player-btn').addEventListener('click', () => {
+        document.getElementById('single-player-btn')?.addEventListener('click', () => {
             window.location.href = 'game.html';
         });
 
-        document.getElementById('public-race-btn').addEventListener('click', () => {
+        document.getElementById('public-race-btn')?.addEventListener('click', () => {
             this.joinPublicRace();
         });
 
-        document.getElementById('private-race-btn').addEventListener('click', () => {
+        document.getElementById('private-race-btn')?.addEventListener('click', () => {
             this.createPrivateRoom();
         });
 
         // Private room controls
-        document.getElementById('start-private-race-btn').addEventListener('click', () => {
+        document.getElementById('start-private-race-btn')?.addEventListener('click', () => {
             this.startPrivateRace();
         });
 
-        document.getElementById('leave-room-btn').addEventListener('click', () => {
+        document.getElementById('leave-room-btn')?.addEventListener('click', () => {
             this.leaveRoom();
         });
 
-        document.getElementById('copy-link-btn').addEventListener('click', () => {
+        document.getElementById('copy-link-btn')?.addEventListener('click', () => {
             this.copyRoomLink();
         });
 
         // Public race controls
-        document.getElementById('ready-btn').addEventListener('click', () => {
+        document.getElementById('ready-btn')?.addEventListener('click', () => {
             this.setPlayerReady();
         });
 
-        document.getElementById('leave-public-btn').addEventListener('click', () => {
+        document.getElementById('leave-public-btn')?.addEventListener('click', () => {
             this.leaveRoom();
         });
     }
@@ -188,11 +198,11 @@ class MultiplayerManager {
         const modal = document.getElementById('name-modal');
         const nameInput = document.getElementById('player-name-input');
         
-        nameInput.value = this.playerName;
-        modal.classList.remove('hidden');
-        
-        // Set up character selection in modal
-        this.setupMiniCharacterSelection();
+        if (modal && nameInput) {
+            nameInput.value = this.playerName;
+            modal.classList.remove('hidden');
+            this.setupMiniCharacterSelection();
+        }
     }
 
     setupMiniCharacterSelection() {
@@ -212,15 +222,16 @@ class MultiplayerManager {
 
     savePlayerInfo() {
         const nameInput = document.getElementById('player-name-input');
-        const name = nameInput.value.trim();
+        const name = nameInput?.value.trim();
         
-        if (name.length < 2) {
+        if (!name || name.length < 2) {
             this.showNotification('Please enter a name with at least 2 characters');
             return;
         }
         
         this.savePlayerData(name, this.playerCharacter);
-        document.getElementById('name-modal').classList.add('hidden');
+        const modal = document.getElementById('name-modal');
+        if (modal) modal.classList.add('hidden');
         
         // Re-identify with server if connected
         if (this.connected) {
@@ -239,7 +250,8 @@ class MultiplayerManager {
         }
         
         this.socket.emit('joinPublicRace');
-        document.getElementById('public-waiting-modal').classList.remove('hidden');
+        const modal = document.getElementById('public-waiting-modal');
+        if (modal) modal.classList.remove('hidden');
     }
 
     createPrivateRoom() {
@@ -255,42 +267,61 @@ class MultiplayerManager {
         const modal = document.getElementById('private-room-modal');
         const roomLink = document.getElementById('room-link');
         
-        const roomUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-        roomLink.value = roomUrl;
-        
-        this.updatePrivateRoomDisplay(room);
-        modal.classList.remove('hidden');
+        if (modal && roomLink) {
+            const roomUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
+            roomLink.value = roomUrl;
+            
+            this.updatePrivateRoomDisplay(room);
+            modal.classList.remove('hidden');
+        }
     }
 
     updatePrivateRoomDisplay(room) {
         const playersList = document.getElementById('players-list');
+        if (!playersList) return;
+        
         playersList.innerHTML = '';
         
         room.players.forEach(player => {
             const li = document.createElement('li');
             li.textContent = player.name;
             if (player.ready) {
-                li.innerHTML += ' ✓';
+                li.innerHTML += ' <span style="color: #4CAF50;">✓ Ready</span>';
             }
             playersList.appendChild(li);
         });
 
         const startBtn = document.getElementById('start-private-race-btn');
-        startBtn.disabled = room.players.length < 2;
+        if (startBtn) {
+            startBtn.disabled = room.players.length < 2;
+            startBtn.textContent = room.players.length < 2 ? 
+                'Need 2+ Players' : 'Start Race';
+        }
     }
 
     updatePublicRoomDisplay(room) {
         const playersList = document.getElementById('public-players-list');
+        if (!playersList) return;
+        
         playersList.innerHTML = '';
         
         room.players.forEach(player => {
             const li = document.createElement('li');
             li.textContent = player.name;
             if (player.ready) {
-                li.innerHTML += ' ✓';
+                li.innerHTML += ' <span style="color: #4CAF50;">✓ Ready</span>';
             }
             playersList.appendChild(li);
         });
+
+        const readyBtn = document.getElementById('ready-btn');
+        if (readyBtn) {
+            const playerInRoom = room.players.find(p => p.socketId === this.socket.id);
+            if (playerInRoom && playerInRoom.ready) {
+                readyBtn.disabled = true;
+                readyBtn.textContent = 'Waiting for others...';
+            }
+        }
     }
 
     startPrivateRace() {
@@ -299,8 +330,11 @@ class MultiplayerManager {
 
     setPlayerReady() {
         this.socket.emit('playerReady');
-        document.getElementById('ready-btn').disabled = true;
-        document.getElementById('ready-btn').textContent = 'Waiting...';
+        const readyBtn = document.getElementById('ready-btn');
+        if (readyBtn) {
+            readyBtn.disabled = true;
+            readyBtn.textContent = 'Waiting for others...';
+        }
     }
 
     leaveRoom() {
@@ -308,48 +342,82 @@ class MultiplayerManager {
         this.roomId = null;
         this.isHost = false;
         
-        document.getElementById('private-room-modal').classList.add('hidden');
-        document.getElementById('public-waiting-modal').classList.add('hidden');
+        const privateModal = document.getElementById('private-room-modal');
+        const publicModal = document.getElementById('public-waiting-modal');
+        
+        if (privateModal) privateModal.classList.add('hidden');
+        if (publicModal) publicModal.classList.add('hidden');
     }
 
     copyRoomLink() {
         const roomLink = document.getElementById('room-link');
-        roomLink.select();
-        document.execCommand('copy');
-        this.showNotification('Room link copied to clipboard!');
+        if (roomLink) {
+            roomLink.select();
+            roomLink.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(roomLink.value);
+            this.showNotification('Room link copied to clipboard!');
+        }
     }
 
-    startCountdown(countdown, type) {
+    showCountdown(countdown, type) {
         console.log(`Starting countdown: ${countdown} for ${type} race`);
-        // Countdown will be handled in the race interface
+        this.showNotification(`Race starting in ${countdown}...`);
     }
 
     updateCountdown(countdown, type) {
         console.log(`Countdown: ${countdown} for ${type} race`);
-        // Countdown will be handled in the race interface
+        if (countdown <= 3) {
+            this.showNotification(countdown);
+        }
     }
 
     startMultiplayerRace(room, quote, type) {
-        // Redirect to multiplayer game page with room data
+        // Store race data and redirect to multiplayer game
         const roomData = {
             roomId: room.id,
             players: room.players,
             quote: quote,
-            isPrivate: type === 'private'
+            isPrivate: type === 'private',
+            startTime: room.startTime
         };
         
         localStorage.setItem('multiplayerRace', JSON.stringify(roomData));
-        window.location.href = 'multiplayer.html';
+        window.location.href = 'multiplayer-game.html';
     }
 
     showRaceResults(room) {
-        // Show race results modal
-        console.log('Race completed:', room);
+        const winner = room.players.reduce((prev, current) => 
+            (prev.finishTime < current.finishTime) ? prev : current
+        );
+        
+        this.showNotification(`Race finished! Winner: ${winner.name}`);
     }
 
     showNotification(message) {
-        // Simple notification system
-        alert(message); // Replace with better UI later
+        // Create a nice notification instead of alert
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-left: 4px solid #fdbb2d;
+            z-index: 10000;
+            font-size: 14px;
+            max-width: 300px;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
     }
 }
 
@@ -358,9 +426,8 @@ function checkRoomInvitation() {
     const urlParams = new URLSearchParams(window.location.search);
     const roomId = urlParams.get('room');
     
-    if (roomId && multiplayer) {
-        // Auto-join the room
-        multiplayer.socket.emit('joinPrivateRoom', { roomId });
+    if (roomId && window.multiplayer) {
+        window.multiplayer.socket.emit('joinPrivateRoom', { roomId });
     }
 }
 
@@ -370,5 +437,5 @@ const multiplayer = new MultiplayerManager();
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     multiplayer.init();
-    setTimeout(checkRoomInvitation, 1000); // Check for room invites after a delay
+    setTimeout(checkRoomInvitation, 1000);
 });
