@@ -61,7 +61,30 @@ app.get('/', (req, res) => {
     status: 'running',
     publicRoomPlayers: publicRooms.size,
     privateRooms: privateRooms.size,
-    connectedPlayers: players.size
+    connectedPlayers: players.size,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Simple test endpoint
+app.get('/test', (req, res) => {
+  res.json({ 
+    message: 'Server is working!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Get server status
+app.get('/status', (req, res) => {
+  res.json({
+    status: 'healthy',
+    serverTime: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    players: players.size,
+    publicRooms: publicRooms.size,
+    privateRooms: privateRooms.size
   });
 });
 
@@ -544,8 +567,24 @@ function handlePlayerLeave(socketId) {
   players.delete(socketId);
 }
 
-// Start server
+// FIXED: Start server with proper Render configuration
 const PORT = process.env.PORT || 3000;
+
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Seedy-Typey multiplayer server running on port ${PORT}`);
+  console.log(`✅ Seedy-Typey multiplayer server running on port ${PORT}`);
+  console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`✅ Health check available at: http://0.0.0.0:${PORT}/`);
+  console.log(`✅ Test endpoint: http://0.0.0.0:${PORT}/test`);
+}).on('error', (err) => {
+  console.error('❌ Server failed to start:', err);
+  process.exit(1);
+});
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
