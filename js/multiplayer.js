@@ -8,6 +8,7 @@ class MultiplayerManager {
         this.roomId = null;
         this.connected = false;
         this.isHost = false;
+        this.autoJoinPublic = false;
     }
 
     init() {
@@ -61,7 +62,6 @@ class MultiplayerManager {
     connectToServer() {
         console.log('🔄 Connecting to server...');
         
-        // UPDATED: Better connection handling
         this.socket = io('https://seedy-typey-backend.onrender.com', {
             transports: ['websocket', 'polling'],
             timeout: 10000
@@ -249,6 +249,7 @@ class MultiplayerManager {
             return;
         }
         
+        this.autoJoinPublic = true;
         this.socket.emit('joinPublicRace');
         const modal = document.getElementById('public-waiting-modal');
         if (modal) modal.classList.remove('hidden');
@@ -320,6 +321,9 @@ class MultiplayerManager {
             if (playerInRoom && playerInRoom.ready) {
                 readyBtn.disabled = true;
                 readyBtn.textContent = 'Waiting for others...';
+            } else {
+                readyBtn.disabled = false;
+                readyBtn.textContent = 'I\'m Ready!';
             }
         }
     }
@@ -341,6 +345,7 @@ class MultiplayerManager {
         this.socket.emit('leaveRoom');
         this.roomId = null;
         this.isHost = false;
+        this.autoJoinPublic = false;
         
         const privateModal = document.getElementById('private-room-modal');
         const publicModal = document.getElementById('public-waiting-modal');

@@ -1,5 +1,3 @@
-[file name]: multiplayer-game.js
-[file content begin]
 // Multiplayer game functionality
 document.addEventListener('DOMContentLoaded', function() {
     // DOM elements
@@ -55,6 +53,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Connect to socket
         connectToSocket();
         setupEventListeners();
+        
+        // Show waiting message
+        quoteDisplay.textContent = 'Waiting for race to start...';
+        typingInput.placeholder = 'Race will start soon...';
     }
 
     function connectToSocket() {
@@ -89,6 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
         socket.on('publicRaceStarted', startRace);
 
         socket.on('raceCompleted', showResults);
+        
+        socket.on('error', (data) => {
+            console.error('Socket error:', data);
+            showNotification('Error: ' + data.message);
+        });
     }
 
     function handleRoomUpdate(data) {
@@ -137,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         players.forEach(player => {
             const carElement = document.getElementById(`player-${player.socketId}`);
             if (carElement) {
-                carElement.style.left = `${5 + player.progress}%`;
+                carElement.style.left = `${5 + (player.progress * 0.85)}%`;
             }
             
             // Update player list
@@ -424,31 +431,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 3000);
     }
-
-    // Add some CSS for player list
-    const style = document.createElement('style');
-    style.textContent = `
-        .players-list {
-            margin: 1rem 0;
-            text-align: left;
-        }
-        .player-item {
-            background: rgba(255,255,255,0.1);
-            padding: 0.5rem 1rem;
-            margin: 0.25rem 0;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .player-name {
-            font-weight: bold;
-        }
-        .player-stats {
-            font-size: 0.9rem;
-            color: #fdbb2d;
-        }
-    `;
-    document.head.appendChild(style);
 
     // Initialize the game
     initGame();
