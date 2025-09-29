@@ -1,6 +1,5 @@
 // Main menu functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const startBtn = document.getElementById('start-btn');
     const instructionsBtn = document.getElementById('instructions-btn');
     const selectCharBtn = document.getElementById('select-char-btn');
     const instructions = document.querySelector('.instructions');
@@ -40,6 +39,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Save selection to localStorage
             localStorage.setItem('selectedChar', selectedChar);
+            
+            // Update multiplayer character if exists
+            if (window.multiplayer) {
+                window.multiplayer.playerCharacter = selectedChar;
+                window.multiplayer.savePlayerData(window.multiplayer.playerName, selectedChar);
+            }
         });
     });
     
@@ -56,11 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Start game button
-    startBtn.addEventListener('click', function() {
-        window.location.href = 'game.html';
-    });
     
     // Toggle instructions
     instructionsBtn.addEventListener('click', function() {

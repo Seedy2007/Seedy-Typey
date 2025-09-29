@@ -29,6 +29,39 @@
                 </div>
             </div>
             
+            <!-- Name Selection Modal -->
+            <div class="modal" id="name-modal">
+                <div class="modal-content">
+                    <h2>Welcome to Seedy-Typey!</h2>
+                    <p>Choose your display name:</p>
+                    <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20" class="name-input">
+                    <div class="character-selection-mini">
+                        <div class="char-option-mini active" data-char="happy">
+                            <div class="char happy">•ᴗ•</div>
+                        </div>
+                        <div class="char-option-mini" data-char="speedy">
+                            <div class="char speedy">•̀⤙•́</div>
+                        </div>
+                        <div class="char-option-mini" data-char="cool">
+                            <div class="char cool">¬‿¬</div>
+                        </div>
+                        <div class="char-option-mini" data-char="shy">
+                            <div class="char shy">◕‿◕</div>
+                        </div>
+                        <div class="char-option-mini" data-char="sleepy">
+                            <div class="char sleepy">◕‸◕</div>
+                        </div>
+                    </div>
+                    <button class="btn primary" id="save-player-btn">Save & Continue</button>
+                </div>
+            </div>
+
+            <!-- Player Info Display -->
+            <div class="player-info">
+                <span id="player-display-name">Player</span>
+                <button class="btn small" id="change-name-btn">Change Name</button>
+            </div>
+            
             <div class="menu-content">
                 <button class="btn" id="select-char-btn">Select Your Character</button>
                 
@@ -68,11 +101,49 @@
                     </div>
                 </div>
                 
-                <p>Test your typing speed against SEEDY, the typing master. Type as fast as you can to win the race!</p>
+                <p>Test your typing speed against SEEDY or race against friends!</p>
                 
                 <div class="menu-buttons">
-                    <button class="btn primary" id="start-btn">Start Race</button>
+                    <button class="btn primary" id="single-player-btn">Single Player vs SEEDY</button>
+                    <button class="btn secondary" id="public-race-btn">Join Public Race</button>
+                    <button class="btn" id="private-race-btn">Create Private Race</button>
                     <button class="btn secondary" id="instructions-btn">How to Play</button>
+                </div>
+                
+                <!-- Private Room Modal -->
+                <div class="modal hidden" id="private-room-modal">
+                    <div class="modal-content">
+                        <h2>Private Room Created!</h2>
+                        <p>Share this link with your friends:</p>
+                        <div class="room-link-container">
+                            <input type="text" id="room-link" readonly class="room-link-input">
+                            <button class="btn small" id="copy-link-btn">Copy</button>
+                        </div>
+                        <div class="room-players" id="room-players-list">
+                            <h3>Players in Room:</h3>
+                            <ul id="players-list"></ul>
+                        </div>
+                        <div class="room-controls">
+                            <button class="btn primary" id="start-private-race-btn">Start Race</button>
+                            <button class="btn" id="leave-room-btn">Leave Room</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Public Race Waiting Modal -->
+                <div class="modal hidden" id="public-waiting-modal">
+                    <div class="modal-content">
+                        <h2>Joining Public Race...</h2>
+                        <div class="waiting-players">
+                            <h3>Players in Lobby:</h3>
+                            <ul id="public-players-list"></ul>
+                        </div>
+                        <div class="race-info">
+                            <p>Race will start when 2+ players are ready or when 4 players join</p>
+                            <button class="btn primary" id="ready-btn">I'm Ready!</button>
+                            <button class="btn" id="leave-public-btn">Leave Lobby</button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="instructions hidden">
@@ -80,7 +151,7 @@
                     <ul>
                         <li>Type the text shown as quickly and accurately as possible</li>
                         <li>Your typing speed (WPM) will move you forward</li>
-                        <li>Beat SEEDY to the finish line to win!</li>
+                        <li>Beat your opponents to the finish line to win!</li>
                         <li>No cheating - copy/paste is disabled!</li>
                     </ul>
                 </div>
@@ -90,6 +161,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/multiplayer.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
