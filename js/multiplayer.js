@@ -59,8 +59,8 @@ class MultiplayerManager {
     }
 
     connectToServer() {
-        // Replace with your Fly.io URL
-        this.socket = io('https://Seedy-Typey.fly.dev');
+        // UPDATED: Connect to your deployed Render backend
+        this.socket = io('https://seedy-typey-backend.onrender.com');
         
         this.socket.on('connect', () => {
             this.connected = true;

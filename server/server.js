@@ -7,12 +7,14 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const server = http.createServer(app);
 
-// Configure CORS for your GitHub Pages domain and local development
+// UPDATED: Configure CORS for your frontend (local and potential GitHub Pages)
 app.use(cors({
   origin: [
-    "https://YOUR_GITHUB_USERNAME.github.io",
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "file://" // Allow file protocol for local HTML files
   ],
   credentials: true
 }));
@@ -20,9 +22,11 @@ app.use(cors({
 const io = socketIo(server, {
   cors: {
     origin: [
-      "https://YOUR_GITHUB_USERNAME.github.io", 
       "http://localhost:3000",
-      "http://127.0.0.1:3000"
+      "http://127.0.0.1:3000", 
+      "http://localhost:5500",
+      "http://127.0.0.1:5500",
+      "file://"
     ],
     methods: ["GET", "POST"]
   }
