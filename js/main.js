@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show name modal if no player data exists
     if (!loadPlayerData()) {
-        nameModal.classList.remove('hidden');
+        nameModal.style.display = 'flex';
     } else {
         updatePlayerDisplay();
         menuContent.classList.remove('hidden');
@@ -54,11 +54,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (name) {
             playerData.name = name;
             savePlayerData();
-            nameModal.classList.add('hidden');
+            nameModal.style.display = 'none';
             menuContent.classList.remove('hidden');
             updatePlayerDisplay();
         } else {
             alert('Please enter a name!');
+        }
+    });
+
+    // Also allow Enter key to save
+    nameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            savePlayerBtn.click();
         }
     });
 
@@ -78,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Change name button
     changeNameBtn.addEventListener('click', function() {
         nameInput.value = playerData.name;
-        nameModal.classList.remove('hidden');
+        nameModal.style.display = 'flex';
         menuContent.classList.add('hidden');
     });
 

@@ -772,3 +772,65 @@ footer {
         padding: 1rem;
     }
 }
+/* Modal display fix */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Ensure name modal is visible when needed */
+#name-modal {
+    display: none; /* Will be set to flex by JS when needed */
+}
+
+/* Results list styling */
+.results-list {
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid transparent;
+}
+
+.result-item.winner {
+    border-left-color: #fdbb2d;
+    background: rgba(253, 187, 45, 0.1);
+}
+
+.position {
+    font-weight: bold;
+    color: #fdbb2d;
+    min-width: 30px;
+}
+
+.player-name {
+    flex: 1;
+    margin: 0 1rem;
+}
+
+.player-stats {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.race-comparison {
+    margin: 1rem 0;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.8);
+}

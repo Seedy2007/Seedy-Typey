@@ -52,19 +52,31 @@ class PublicRaceGame {
     }
 
     connectToServer() {
-        // For development, connect to local server
-        const serverUrl = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000' 
-            : ''; // In production, this would be your server URL
+        // Connect to your Render backend
+        const serverUrl = 'https://seedy-typey-backend.onrender.com';
         
-        this.socket = io(serverUrl);
+        console.log('Connecting to server:', serverUrl);
+        this.socket = io(serverUrl, {
+            transports: ['websocket', 'polling']
+        });
         
         this.socket.on('connect', () => {
-            console.log('Connected to server');
+            console.log('Connected to server with ID:', this.socket.id);
             this.playerId = this.socket.id;
             this.joinPublicRoom();
         });
         
+        this.socket.on('disconnect', (reason) => {
+            console.log('Disconnected from server:', reason);
+            this.roomStatus.textContent = 'Disconnected from server';
+        });
+        
+        this.socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            this.roomStatus.textContent = 'Connection failed. Please refresh.';
+        });
+
+        // Game event handlers
         this.socket.on('playerJoined', (data) => this.handlePlayerJoined(data));
         this.socket.on('playerLeft', (data) => this.handlePlayerLeft(data));
         this.socket.on('playerReady', (data) => this.handlePlayerReady(data));
@@ -73,22 +85,24 @@ class PublicRaceGame {
         this.socket.on('playerProgress', (data) => this.handlePlayerProgress(data));
         this.socket.on('raceFinished', (data) => this.handleRaceFinished(data));
         this.socket.on('roomInfo', (data) => this.handleRoomInfo(data));
-        
-        this.socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-            this.roomStatus.textContent = 'Disconnected from server';
-        });
+        this.socket.on('roomStatus', (data) => this.handleRoomStatus(data));
+        this.socket.on('playerUpdated', (data) => this.handlePlayerUpdated(data));
     }
 
     joinPublicRoom() {
         const playerData = this.getPlayerData();
+        console.log('Joining public room with data:', playerData);
         this.socket.emit('joinPublicRoom', playerData);
     }
 
     getPlayerData() {
         const savedData = localStorage.getItem('seedyPlayerData');
         if (savedData) {
-            return JSON.parse(savedData);
+            const data = JSON.parse(savedData);
+            return {
+                name: data.name || 'Anonymous',
+                character: data.character || 'happy'
+            };
         }
         return {
             name: 'Anonymous',
@@ -140,8 +154,13 @@ class PublicRaceGame {
     }
 
     setPlayerCharacter(charType) {
-        // This will be used when creating player lanes
-        // The actual character display is handled in createPlayerLane
+        // Update local storage
+        const savedData = localStorage.getItem('seedyPlayerData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            data.character = charType;
+            localStorage.setItem('seedyPlayerData', JSON.stringify(data));
+        }
     }
 
     getCharacterText(charType) {
@@ -161,6 +180,7 @@ class PublicRaceGame {
     }
 
     handlePlayerJoined(data) {
+        console.log('Player joined:', data);
         this.players.set(data.playerId, data);
         this.updatePlayersList();
         this.createPlayerLane(data);
@@ -168,6 +188,7 @@ class PublicRaceGame {
     }
 
     handlePlayerLeft(data) {
+        console.log('Player left:', data);
         this.players.delete(data.playerId);
         this.removePlayerLane(data.playerId);
         this.updatePlayersList();
@@ -175,20 +196,46 @@ class PublicRaceGame {
     }
 
     handlePlayerReady(data) {
+        console.log('Player ready:', data);
         const player = this.players.get(data.playerId);
         if (player) {
             player.isReady = data.isReady;
             this.updatePlayersList();
-            this.updateRoomStatus();
+        }
+    }
+
+    handlePlayerUpdated(data) {
+        console.log('Player updated:', data);
+        const player = this.players.get(data.playerId);
+        if (player) {
+            player.character = data.character;
+            this.updatePlayerLane(data.playerId, data);
+        }
+    }
+
+    handleRoomStatus(data) {
+        console.log('Room status:', data);
+        const readyPlayers = data.readyPlayers;
+        const totalPlayers = data.totalPlayers;
+        
+        if (totalPlayers < 2) {
+            this.roomStatus.textContent = `Waiting for players... (${totalPlayers}/2)`;
+            this.readyBtn.disabled = totalPlayers < 2;
+        } else if (readyPlayers < totalPlayers) {
+            this.roomStatus.textContent = `Players ready: ${readyPlayers}/${totalPlayers}`;
+        } else {
+            this.roomStatus.textContent = 'All players ready! Starting race...';
         }
     }
 
     handleRaceStarting(data) {
+        console.log('Race starting with countdown:', data);
         this.roomStatus.textContent = 'Race starting in 3 seconds...';
         this.startCountdown();
     }
 
     handleRaceStarted(data) {
+        console.log('Race started with quote:', data.quote);
         this.currentQuote = data.quote;
         this.startRace();
     }
@@ -201,6 +248,7 @@ class PublicRaceGame {
     }
 
     handleRaceFinished(data) {
+        console.log('Race finished with results:', data.results);
         this.isRacing = false;
         clearInterval(this.timerInterval);
         cancelAnimationFrame(this.raceInterval);
@@ -212,11 +260,11 @@ class PublicRaceGame {
     }
 
     handleRoomInfo(data) {
+        console.log('Room info received:', data);
         this.roomId = data.roomId;
         this.players = new Map(data.players.map(p => [p.playerId, p]));
         this.updatePlayersList();
         this.createAllPlayerLanes();
-        this.updateRoomStatus();
     }
 
     updatePlayersList() {
@@ -268,6 +316,15 @@ class PublicRaceGame {
         const car = document.getElementById(`car-${player.playerId}`);
         if (car) {
             car.style.left = '5%';
+        }
+    }
+
+    updatePlayerLane(playerId, playerData) {
+        const car = document.getElementById(`car-${playerId}`);
+        if (car) {
+            const charElement = car.querySelector('.char');
+            charElement.className = `char ${playerData.character}`;
+            charElement.textContent = this.getCharacterText(playerData.character);
         }
     }
 
@@ -330,6 +387,7 @@ class PublicRaceGame {
                 setTimeout(() => {
                     this.countdown.classList.add('hidden');
                     clearInterval(countdownInterval);
+                    this.isCountdown = false;
                 }, 500);
             }
         }, 1000);
@@ -337,9 +395,9 @@ class PublicRaceGame {
 
     startRace() {
         this.isRacing = true;
-        this.isCountdown = false;
         this.typingInput.disabled = false;
         this.typingInput.focus();
+        this.typingInput.placeholder = "Start typing the text above...";
         
         this.currentIndex = 0;
         this.errors = 0;
@@ -359,17 +417,19 @@ class PublicRaceGame {
     }
 
     displayQuote() {
-        let displayHTML = '';
+        this.quoteDisplay.textContent = this.currentQuote;
+        this.quoteDisplay.innerHTML = '';
+        
         for (let i = 0; i < this.currentQuote.length; i++) {
-            if (i === this.currentIndex) {
-                displayHTML += `<span class="current">${this.currentQuote[i]}</span>`;
-            } else if (i < this.currentIndex) {
-                displayHTML += `<span class="correct">${this.currentQuote[i]}</span>`;
-            } else {
-                displayHTML += `<span>${this.currentQuote[i]}</span>`;
-            }
+            const charSpan = document.createElement('span');
+            charSpan.textContent = this.currentQuote[i];
+            this.quoteDisplay.appendChild(charSpan);
         }
-        this.quoteDisplay.innerHTML = displayHTML;
+        
+        // Highlight first character
+        if (this.quoteDisplay.firstChild) {
+            this.quoteDisplay.firstChild.classList.add('current');
+        }
     }
 
     startTimer() {
@@ -596,6 +656,7 @@ class PublicRaceGame {
         
         this.typingInput.disabled = true;
         this.typingInput.value = '';
+        this.typingInput.placeholder = "Race will start when enough players are ready...";
         
         clearInterval(this.timerInterval);
         cancelAnimationFrame(this.raceInterval);
