@@ -33,43 +33,14 @@
                     <div class="finish-line"></div>
                 </div>
             </div>
-            
-            <!-- Name Selection Modal -->
-            <div class="modal" id="name-modal">
-                <div class="modal-content">
-                    <h2>Welcome to Seedy-Typey!</h2>
-                    <p>Choose your display name:</p>
-                    <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20" class="name-input">
-                    <div class="character-selection-mini">
-                        <div class="char-option-mini active" data-char="happy">
-                            <div class="char happy">•ᴗ•</div>
-                        </div>
-                        <div class="char-option-mini" data-char="speedy">
-                            <div class="char speedy">•̀⤙•́</div>
-                        </div>
-                        <div class="char-option-mini" data-char="cool">
-                            <div class="char cool">¬‿¬</div>
-                        </div>
-                        <div class="char-option-mini" data-char="shy">
-                            <div class="char shy">◕‿◕</div>
-                        </div>
-                        <div class="char-option-mini" data-char="sleepy">
-                            <div class="char sleepy">◕‸◕</div>
-                        </div>
-                    </div>
-                    <button class="btn primary" id="save-player-btn">Save & Continue</button>
-                </div>
-            </div>
 
             <!-- Player Info Display -->
-            <div class="player-info hidden" id="player-info-display">
-                <span id="player-display-name">Player</span>
-                <button class="btn small" id="change-name-btn">Change Name</button>
+            <div class="player-info" id="player-info-display">
+                <input type="text" id="player-display-name" class="player-name-input" value="Player" maxlength="20">
+                <button class="btn small" id="select-char-btn">Change Character</button>
             </div>
             
-            <div class="menu-content hidden" id="menu-content">
-                <button class="btn" id="select-char-btn">Select Your Character</button>
-                
+            <div class="menu-content" id="menu-content">
                 <div class="character-selection hidden">
                     <h3>Choose Your Character</h3>
                     <div class="characters-grid">

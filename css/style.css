@@ -834,3 +834,36 @@ footer {
     font-style: italic;
     color: rgba(255, 255, 255, 0.8);
 }
+
+/* Add this to your existing CSS */
+
+/* Player name input styling */
+.player-name-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #fdbb2d;
+    border-radius: 20px;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    text-align: center;
+    max-width: 200px;
+}
+
+.player-name-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+/* Remove the old player-info styles and replace with: */
+.player-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}

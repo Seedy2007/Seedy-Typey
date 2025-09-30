@@ -34,8 +34,6 @@ class PublicRaceGame {
         this.menuBtn = document.getElementById('menu-btn');
         this.countdown = document.getElementById('countdown');
         this.countdownNumber = document.getElementById('countdown-number');
-        this.playersContainer = document.getElementById('players-container');
-        this.playerCount = document.getElementById('player-count');
         this.roomStatus = document.getElementById('room-status');
         this.multiplayerTrack = document.getElementById('multiplayer-track');
         this.changeCharBtn = document.getElementById('change-char-btn');
@@ -182,7 +180,6 @@ class PublicRaceGame {
     handlePlayerJoined(data) {
         console.log('Player joined:', data);
         this.players.set(data.playerId, data);
-        this.updatePlayersList();
         this.createPlayerLane(data);
         this.updateRoomStatus();
     }
@@ -191,7 +188,6 @@ class PublicRaceGame {
         console.log('Player left:', data);
         this.players.delete(data.playerId);
         this.removePlayerLane(data.playerId);
-        this.updatePlayersList();
         this.updateRoomStatus();
     }
 
@@ -200,7 +196,6 @@ class PublicRaceGame {
         const player = this.players.get(data.playerId);
         if (player) {
             player.isReady = data.isReady;
-            this.updatePlayersList();
         }
     }
 
@@ -220,9 +215,10 @@ class PublicRaceGame {
         
         if (totalPlayers < 2) {
             this.roomStatus.textContent = `Waiting for players... (${totalPlayers}/2)`;
-            this.readyBtn.disabled = totalPlayers < 2;
+            this.readyBtn.disabled = false; // Always enable ready button
         } else if (readyPlayers < totalPlayers) {
             this.roomStatus.textContent = `Players ready: ${readyPlayers}/${totalPlayers}`;
+            this.readyBtn.disabled = false; // Always enable ready button
         } else {
             this.roomStatus.textContent = 'All players ready! Starting race...';
         }
@@ -263,27 +259,7 @@ class PublicRaceGame {
         console.log('Room info received:', data);
         this.roomId = data.roomId;
         this.players = new Map(data.players.map(p => [p.playerId, p]));
-        this.updatePlayersList();
         this.createAllPlayerLanes();
-    }
-
-    updatePlayersList() {
-        this.playersContainer.innerHTML = '';
-        this.playerCount.textContent = this.players.size;
-        
-        this.players.forEach((player, playerId) => {
-            const playerElement = document.createElement('div');
-            playerElement.className = 'player-item';
-            playerElement.innerHTML = `
-                <div class="player-info-mini">
-                    <span class="player-name">${player.name}</span>
-                    <span class="player-status ${player.isReady ? 'player-ready' : 'player-not-ready'}">
-                        ${player.isReady ? '✓ Ready' : '✗ Not Ready'}
-                    </span>
-                </div>
-            `;
-            this.playersContainer.appendChild(playerElement);
-        });
     }
 
     createAllPlayerLanes() {
@@ -291,6 +267,11 @@ class PublicRaceGame {
         this.players.forEach((player, playerId) => {
             this.createPlayerLane(player);
         });
+        
+        // Add finish line
+        const finishLine = document.createElement('div');
+        finishLine.className = 'finish-line';
+        this.multiplayerTrack.appendChild(finishLine);
     }
 
     createPlayerLane(player) {
@@ -349,7 +330,6 @@ class PublicRaceGame {
         
         if (totalPlayers < 2) {
             this.roomStatus.textContent = `Waiting for players... (${totalPlayers}/2)`;
-            this.readyBtn.disabled = totalPlayers < 2;
         } else if (readyPlayers < totalPlayers) {
             this.roomStatus.textContent = `Players ready: ${readyPlayers}/${totalPlayers}`;
         } else {

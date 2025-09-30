@@ -1,11 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
-    const nameModal = document.getElementById('name-modal');
-    const nameInput = document.getElementById('player-name-input');
-    const savePlayerBtn = document.getElementById('save-player-btn');
+    const playerNameInput = document.getElementById('player-display-name');
     const playerInfoDisplay = document.getElementById('player-info-display');
-    const playerDisplayName = document.getElementById('player-display-name');
-    const changeNameBtn = document.getElementById('change-name-btn');
     const menuContent = document.getElementById('menu-content');
     const selectCharBtn = document.getElementById('select-char-btn');
     const characterSelection = document.querySelector('.character-selection');
@@ -14,11 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const instructionsBtn = document.getElementById('instructions-btn');
     const instructions = document.querySelector('.instructions');
     const charOptions = document.querySelectorAll('.char-option');
-    const charOptionsMini = document.querySelectorAll('.char-option-mini');
 
     // Player data
     let playerData = {
-        name: '',
+        name: 'Player',
         character: 'happy',
         wpm: 0,
         accuracy: 0,
@@ -40,40 +35,18 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('seedyPlayerData', JSON.stringify(playerData));
     }
 
-    // Show name modal if no player data exists
-    if (!loadPlayerData()) {
-        nameModal.style.display = 'flex';
-    } else {
-        updatePlayerDisplay();
-        menuContent.classList.remove('hidden');
-    }
-
-    // Save player name and character
-    savePlayerBtn.addEventListener('click', function() {
-        const name = nameInput.value.trim();
-        if (name) {
-            playerData.name = name;
-            savePlayerData();
-            nameModal.style.display = 'none';
-            menuContent.classList.remove('hidden');
-            updatePlayerDisplay();
+    // Initialize player data
+    function initPlayerData() {
+        if (loadPlayerData()) {
+            playerNameInput.value = playerData.name;
         } else {
-            alert('Please enter a name!');
+            savePlayerData();
         }
-    });
-
-    // Also allow Enter key to save
-    nameInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            savePlayerBtn.click();
-        }
-    });
+        updatePlayerDisplay();
+    }
 
     // Update player info display
     function updatePlayerDisplay() {
-        playerDisplayName.textContent = playerData.name;
-        playerInfoDisplay.classList.remove('hidden');
-        
         // Update character in demo
         const playerChar = document.getElementById('player-char');
         if (playerChar) {
@@ -82,32 +55,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Change name button
-    changeNameBtn.addEventListener('click', function() {
-        nameInput.value = playerData.name;
-        nameModal.style.display = 'flex';
-        menuContent.classList.add('hidden');
+    // Save player name when input changes
+    playerNameInput.addEventListener('change', function() {
+        const name = playerNameInput.value.trim();
+        if (name) {
+            playerData.name = name;
+            savePlayerData();
+        } else {
+            playerNameInput.value = playerData.name; // Restore previous name
+        }
+    });
+
+    playerNameInput.addEventListener('blur', function() {
+        const name = playerNameInput.value.trim();
+        if (!name) {
+            playerNameInput.value = playerData.name; // Restore previous name if empty
+        }
     });
 
     // Character selection
     selectCharBtn.addEventListener('click', function() {
         characterSelection.classList.toggle('hidden');
-    });
-
-    // Character selection for mini options (in modal)
-    charOptionsMini.forEach(option => {
-        option.addEventListener('click', function() {
-            charOptionsMini.forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
-            playerData.character = this.dataset.char;
-            
-            // Update character in modal
-            const playerChar = document.getElementById('player-char');
-            if (playerChar) {
-                playerChar.className = `char ${playerData.character}`;
-                playerChar.textContent = getCharacterText(playerData.character);
-            }
-        });
     });
 
     // Character selection for main options
@@ -119,11 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
             savePlayerData();
             
             // Update character in demo
-            const playerChar = document.getElementById('player-char');
-            if (playerChar) {
-                playerChar.className = `char ${playerData.character}`;
-                playerChar.textContent = getCharacterText(playerData.character);
-            }
+            updatePlayerDisplay();
         });
     });
 
@@ -191,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Start demo animation
+    // Initialize
+    initPlayerData();
     startDemoAnimation();
 });

@@ -276,9 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check if opponent finished
             if (opponentProgress >= 100 && !opponentFinished) {
                 opponentFinished = true;
-                if (!playerFinished) {
-                    winner = 'opponent';
-                    endGame(false);
+                // Don't end game immediately - wait for player to finish or time to run out
+                if (playerFinished) {
+                    determineWinner();
                 }
             }
             
@@ -401,8 +401,26 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly
             playerFinished = true;
+            determineWinner();
+        }
+    }
+    
+    // Determine winner when both players have finished or time is up
+    function determineWinner() {
+        if (playerFinished && opponentFinished) {
+            // Both finished - compare times
+            const playerTime = (new Date() - startTime) / 1000;
+            const opponentTime = (100 / (100 / (currentQuote.text.length / 5 / opponentTargetWPM * 60))) * 1000;
+            winner = playerTime < opponentTime ? 'player' : 'opponent';
+            endGame(winner === 'player');
+        } else if (playerFinished && !opponentFinished) {
+            // Player finished first
             winner = 'player';
             endGame(true);
+        } else if (!playerFinished && opponentFinished) {
+            // Opponent finished first, but wait for player to finish or time to run out
+            // Game will continue until player finishes or time runs out
+            return;
         }
     }
     
