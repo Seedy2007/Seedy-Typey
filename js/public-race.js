@@ -39,6 +39,7 @@ class PublicRaceGame {
         this.changeCharBtn = document.getElementById('change-char-btn');
         this.charPopup = document.getElementById('char-popup');
         this.closeCharPopup = document.getElementById('close-char-popup');
+        this.charOptions = this.charPopup.querySelectorAll('.char-option');
         
         this.init();
     }
@@ -96,11 +97,15 @@ class PublicRaceGame {
     getPlayerData() {
         const savedData = localStorage.getItem('seedyPlayerData');
         if (savedData) {
-            const data = JSON.parse(savedData);
-            return {
-                name: data.name || 'Anonymous',
-                character: data.character || 'happy'
-            };
+            try {
+                const data = JSON.parse(savedData);
+                return {
+                    name: data.name || 'Anonymous',
+                    character: data.character || 'happy'
+                };
+            } catch (e) {
+                console.error('Error parsing player data:', e);
+            }
         }
         return {
             name: 'Anonymous',
@@ -122,14 +127,14 @@ class PublicRaceGame {
         // Character selection
         this.changeCharBtn.addEventListener('click', () => {
             this.charPopup.classList.remove('hidden');
+            this.updateCharacterSelection();
         });
 
         this.closeCharPopup.addEventListener('click', () => {
             this.charPopup.classList.add('hidden');
         });
 
-        const charOptions = this.charPopup.querySelectorAll('.char-option');
-        charOptions.forEach(option => {
+        this.charOptions.forEach(option => {
             option.addEventListener('click', () => {
                 const charType = option.dataset.char;
                 this.setPlayerCharacter(charType);
@@ -139,11 +144,24 @@ class PublicRaceGame {
                 if (this.socket) {
                     this.socket.emit('updatePlayer', { character: charType });
                 }
+                
+                // Update local player display immediately
+                this.updateLocalPlayerCharacter(charType);
             });
         });
 
         // Prevent paste
         this.typingInput.addEventListener('paste', (e) => e.preventDefault());
+    }
+
+    updateCharacterSelection() {
+        const playerData = this.getPlayerData();
+        this.charOptions.forEach(option => {
+            option.classList.remove('active');
+            if (option.dataset.char === playerData.character) {
+                option.classList.add('active');
+            }
+        });
     }
 
     loadPlayerCharacter() {
@@ -154,10 +172,25 @@ class PublicRaceGame {
     setPlayerCharacter(charType) {
         // Update local storage
         const savedData = localStorage.getItem('seedyPlayerData');
+        let data;
         if (savedData) {
-            const data = JSON.parse(savedData);
-            data.character = charType;
-            localStorage.setItem('seedyPlayerData', JSON.stringify(data));
+            data = JSON.parse(savedData);
+        } else {
+            data = this.getPlayerData();
+        }
+        data.character = charType;
+        localStorage.setItem('seedyPlayerData', JSON.stringify(data));
+    }
+
+    updateLocalPlayerCharacter(charType) {
+        // Update the current player's character display immediately
+        if (this.playerId) {
+            const playerCar = document.getElementById(`car-${this.playerId}`);
+            if (playerCar) {
+                const charElement = playerCar.querySelector('.char');
+                charElement.className = `char ${charType}`;
+                charElement.textContent = this.getCharacterText(charType);
+            }
         }
     }
 
@@ -196,6 +229,7 @@ class PublicRaceGame {
         const player = this.players.get(data.playerId);
         if (player) {
             player.isReady = data.isReady;
+            this.updatePlayerReadyStatus(data.playerId, data.isReady);
         }
     }
 
@@ -280,7 +314,8 @@ class PublicRaceGame {
         lane.id = `lane-${player.playerId}`;
         
         const isCurrentPlayer = player.playerId === this.playerId;
-        const label = isCurrentPlayer ? 'YOU' : player.name;
+        // Show player name with (YOU) indicator for current player
+        const label = isCurrentPlayer ? `${player.name} (YOU)` : player.name;
         
         lane.innerHTML = `
             <span class="lane-label">${label}</span>
@@ -288,6 +323,7 @@ class PublicRaceGame {
                 <div class="char-container">
                     <div class="char ${player.character}">${this.getCharacterText(player.character)}</div>
                 </div>
+                ${player.isReady ? '<div class="ready-indicator">✓</div>' : ''}
             </div>
         `;
         
@@ -306,6 +342,21 @@ class PublicRaceGame {
             const charElement = car.querySelector('.char');
             charElement.className = `char ${playerData.character}`;
             charElement.textContent = this.getCharacterText(playerData.character);
+        }
+    }
+
+    updatePlayerReadyStatus(playerId, isReady) {
+        const car = document.getElementById(`car-${playerId}`);
+        if (car) {
+            let readyIndicator = car.querySelector('.ready-indicator');
+            if (isReady && !readyIndicator) {
+                readyIndicator = document.createElement('div');
+                readyIndicator.className = 'ready-indicator';
+                readyIndicator.textContent = '✓';
+                car.appendChild(readyIndicator);
+            } else if (!isReady && readyIndicator) {
+                readyIndicator.remove();
+            }
         }
     }
 
@@ -346,6 +397,9 @@ class PublicRaceGame {
         if (this.socket) {
             this.socket.emit('playerReady', this.isReady);
         }
+        
+        // Update local ready status immediately
+        this.updatePlayerReadyStatus(this.playerId, this.isReady);
     }
 
     startCountdown() {
@@ -651,11 +705,15 @@ class PublicRaceGame {
         this.quoteDisplay.textContent = 'Waiting for players to join... Need at least 2 players to start.';
         this.roomStatus.textContent = 'Waiting for players...';
         
-        // Reset car positions
+        // Reset car positions and ready status
         this.players.forEach((player, playerId) => {
             const car = document.getElementById(`car-${playerId}`);
             if (car) {
                 car.style.left = '5%';
+                const readyIndicator = car.querySelector('.ready-indicator');
+                if (readyIndicator) {
+                    readyIndicator.remove();
+                }
             }
         });
     }

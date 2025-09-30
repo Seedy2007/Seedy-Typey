@@ -289,6 +289,24 @@ p {
     transform: scale(1.1) rotate(5deg);
 }
 
+/* Ready indicator */
+.ready-indicator {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    z-index: 5;
+}
+
 /* Character Selection */
 .character-selection {
     margin: 2rem 0;
@@ -709,69 +727,6 @@ footer {
     text-align: left;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .container {
-        padding: 1rem;
-    }
-    
-    h1 {
-        font-size: 2.2rem;
-    }
-    
-    h2 {
-        font-size: 1.4rem;
-    }
-    
-    .characters-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .stats {
-        flex-direction: column;
-    }
-    
-    .menu-buttons, .game-controls {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-        margin: 0.3rem 0;
-    }
-    
-    .track {
-        height: 180px;
-    }
-    
-    .quote-display {
-        font-size: 1.2rem;
-        min-height: 120px;
-    }
-    
-    .typing-input {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    h1 {
-        font-size: 1.8rem;
-    }
-    
-    .characters-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .track {
-        height: 160px;
-    }
-    
-    .quote-display {
-        font-size: 1rem;
-        padding: 1rem;
-    }
-}
 /* Modal display fix */
 .modal {
     position: fixed;
@@ -866,4 +821,68 @@ footer {
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 2.2rem;
+    }
+    
+    h2 {
+        font-size: 1.4rem;
+    }
+    
+    .characters-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .stats {
+        flex-direction: column;
+    }
+    
+    .menu-buttons, .game-controls {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        margin: 0.3rem 0;
+    }
+    
+    .track {
+        height: 180px;
+    }
+    
+    .quote-display {
+        font-size: 1.2rem;
+        min-height: 120px;
+    }
+    
+    .typing-input {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .characters-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .track {
+        height: 160px;
+    }
+    
+    .quote-display {
+        font-size: 1rem;
+        padding: 1rem;
+    }
 }

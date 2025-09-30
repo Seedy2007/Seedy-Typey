@@ -24,8 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadPlayerData() {
         const savedData = localStorage.getItem('seedyPlayerData');
         if (savedData) {
-            playerData = JSON.parse(savedData);
-            return true;
+            try {
+                playerData = JSON.parse(savedData);
+                return true;
+            } catch (e) {
+                console.error('Error parsing player data:', e);
+            }
         }
         return false;
     }
@@ -70,13 +74,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = playerNameInput.value.trim();
         if (!name) {
             playerNameInput.value = playerData.name; // Restore previous name if empty
+        } else if (name !== playerData.name) {
+            // Save if name changed
+            playerData.name = name;
+            savePlayerData();
         }
     });
 
     // Character selection
     selectCharBtn.addEventListener('click', function() {
         characterSelection.classList.toggle('hidden');
+        updateCharacterSelection();
     });
+
+    function updateCharacterSelection() {
+        charOptions.forEach(option => {
+            option.classList.remove('active');
+            if (option.dataset.char === playerData.character) {
+                option.classList.add('active');
+            }
+        });
+    }
 
     // Character selection for main options
     charOptions.forEach(option => {
