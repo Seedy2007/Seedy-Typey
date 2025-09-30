@@ -20,6 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Identify player
             const playerData = JSON.parse(localStorage.getItem('seedyTypeyPlayer') || '{}');
+            if (!playerData.id) {
+                alert('Please set up your player profile first.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
             socket.emit('identify', {
                 playerId: playerData.id,
                 name: playerData.name,
@@ -56,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePlayersList(players) {
+        if (!playersList) return;
+        
         playersList.innerHTML = '';
         players.forEach(player => {
             const li = document.createElement('li');
@@ -66,10 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
             playersList.appendChild(li);
         });
         
-        playerCount.textContent = `Players: ${players.length}/4`;
+        if (playerCount) {
+            playerCount.textContent = `Players: ${players.length}/4`;
+        }
     }
 
     function updateLobbyStatus(room) {
+        if (!lobbyStatus) return;
+        
         const readyPlayers = room.players.filter(p => p.ready).length;
         const totalPlayers = room.players.length;
         
@@ -83,8 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupEventListeners() {
-        readyBtn.addEventListener('click', () => {
-            if (!playerReady) {
+        readyBtn?.addEventListener('click', () => {
+            if (!playerReady && socket) {
                 socket.emit('playerReady');
                 playerReady = true;
                 readyBtn.disabled = true;
@@ -92,14 +104,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        leaveBtn.addEventListener('click', () => {
+        leaveBtn?.addEventListener('click', () => {
             if (socket) {
                 socket.emit('leaveRoom');
             }
             window.location.href = 'index.html';
         });
 
-        menuBtn.addEventListener('click', () => {
+        menuBtn?.addEventListener('click', () => {
             if (socket) {
                 socket.emit('leaveRoom');
             }

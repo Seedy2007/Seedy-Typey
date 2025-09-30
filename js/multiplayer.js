@@ -23,7 +23,7 @@ class MultiplayerManager {
             this.playerId = playerData.id;
             this.playerName = playerData.name;
             this.playerCharacter = playerData.character;
-            this.updatePlayerDisplay();
+            this.showMainMenu();
         } else {
             this.showNameModal();
         }
@@ -44,11 +44,32 @@ class MultiplayerManager {
         localStorage.setItem('seedyTypeyPlayer', JSON.stringify(playerData));
         this.playerName = name;
         this.playerCharacter = character;
-        this.updatePlayerDisplay();
+        this.showMainMenu();
     }
 
     generatePlayerId() {
         return 'player_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    showMainMenu() {
+        // Hide name modal
+        const nameModal = document.getElementById('name-modal');
+        if (nameModal) {
+            nameModal.classList.add('hidden');
+        }
+        
+        // Show player info and menu content
+        const playerInfo = document.getElementById('player-info-display');
+        const menuContent = document.getElementById('menu-content');
+        if (playerInfo) {
+            playerInfo.classList.remove('hidden');
+        }
+        if (menuContent) {
+            menuContent.classList.remove('hidden');
+        }
+        
+        // Update player display
+        this.updatePlayerDisplay();
     }
 
     updatePlayerDisplay() {
@@ -117,10 +138,14 @@ class MultiplayerManager {
     showNameModal() {
         const modal = document.getElementById('name-modal');
         const nameInput = document.getElementById('player-name-input');
+        const playerInfo = document.getElementById('player-info-display');
+        const menuContent = document.getElementById('menu-content');
         
         if (modal && nameInput) {
             nameInput.value = this.playerName;
             modal.classList.remove('hidden');
+            if (playerInfo) playerInfo.classList.add('hidden');
+            if (menuContent) menuContent.classList.add('hidden');
             this.setupMiniCharacterSelection();
         }
     }
@@ -150,8 +175,6 @@ class MultiplayerManager {
         }
         
         this.savePlayerData(name, this.playerCharacter);
-        const modal = document.getElementById('name-modal');
-        if (modal) modal.classList.add('hidden');
         
         // Re-identify with server if connected
         if (this.connected) {

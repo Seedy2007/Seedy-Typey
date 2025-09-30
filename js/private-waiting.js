@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Identify player
             const playerData = JSON.parse(localStorage.getItem('seedyTypeyPlayer') || '{}');
+            if (!playerData.id) {
+                alert('Please set up your player profile first.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
             socket.emit('identify', {
                 playerId: playerData.id,
                 name: playerData.name,
@@ -46,12 +52,14 @@ document.addEventListener('DOMContentLoaded', function() {
             isHost = true;
             updateRoomInfo(data.roomId);
             updatePlayersList(data.room.players);
-            hostInfo.textContent = 'You are the host. Start the race when ready!';
+            if (hostInfo) {
+                hostInfo.textContent = 'You are the host. Start the race when ready!';
+            }
         });
 
         socket.on('privateRoomUpdated', (data) => {
             updatePlayersList(data.room.players);
-            if (isHost) {
+            if (isHost && startRaceBtn) {
                 startRaceBtn.disabled = data.room.players.length < 2;
             }
         });
@@ -77,12 +85,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateRoomInfo(roomId) {
-        roomIdElement.textContent = `Room: ${roomId}`;
-        const roomUrl = `${window.location.origin}${window.location.pathname.replace('private-waiting.html', '')}?room=${roomId}`;
-        roomLink.value = roomUrl;
+        if (roomIdElement) {
+            roomIdElement.textContent = `Room: ${roomId}`;
+        }
+        if (roomLink) {
+            const roomUrl = `${window.location.origin}${window.location.pathname.replace('private-waiting.html', '')}index.html?room=${roomId}`;
+            roomLink.value = roomUrl;
+        }
     }
 
     function updatePlayersList(players) {
+        if (!playersList) return;
+        
         playersList.innerHTML = '';
         players.forEach(player => {
             const li = document.createElement('li');
@@ -92,27 +106,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupEventListeners() {
-        startRaceBtn.addEventListener('click', () => {
-            if (isHost) {
+        startRaceBtn?.addEventListener('click', () => {
+            if (isHost && socket) {
                 socket.emit('startPrivateRace');
             }
         });
 
-        copyLinkBtn.addEventListener('click', () => {
-            roomLink.select();
-            roomLink.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(roomLink.value);
-            showNotification('Room link copied to clipboard!');
+        copyLinkBtn?.addEventListener('click', () => {
+            if (roomLink) {
+                roomLink.select();
+                roomLink.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(roomLink.value);
+                showNotification('Room link copied to clipboard!');
+            }
         });
 
-        leaveBtn.addEventListener('click', () => {
+        leaveBtn?.addEventListener('click', () => {
             if (socket) {
                 socket.emit('leaveRoom');
             }
             window.location.href = 'index.html';
         });
 
-        menuBtn.addEventListener('click', () => {
+        menuBtn?.addEventListener('click', () => {
             if (socket) {
                 socket.emit('leaveRoom');
             }

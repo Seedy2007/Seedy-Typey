@@ -867,3 +867,123 @@ footer {
 #main-menu {
     position: relative;
 }
+
+/* Add these styles to your existing style.css file */
+
+/* Ensure modals work properly */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    border: 2px solid #fdbb2d;
+}
+
+/* Race results styling */
+.race-results {
+    margin: 1.5rem 0;
+}
+
+.results-list {
+    text-align: left;
+    margin: 1rem 0;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.result-item.winner {
+    background: rgba(253, 187, 45, 0.2);
+    border: 1px solid #fdbb2d;
+}
+
+.position {
+    font-weight: bold;
+    color: #fdbb2d;
+    min-width: 30px;
+}
+
+.player-name {
+    flex: 1;
+    margin: 0 1rem;
+}
+
+.player-stats {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+/* Waiting room specific styles */
+.waiting-content {
+    margin: 2rem 0;
+}
+
+.room-link-section {
+    margin-bottom: 2rem;
+}
+
+.waiting-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1.5rem 0;
+}
+
+.demo-track {
+    margin: 2rem 0;
+}
+
+.demo-track .track {
+    height: 120px;
+}
+
+/* Ensure proper hidden class behavior */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive improvements for waiting rooms */
+@media (max-width: 768px) {
+    .waiting-controls {
+        flex-direction: column;
+    }
+    
+    .waiting-controls .btn {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+    
+    .room-link-container {
+        flex-direction: column;
+    }
+    
+    .room-link-input {
+        margin-bottom: 0.5rem;
+    }
+}
