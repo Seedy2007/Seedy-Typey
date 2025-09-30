@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seedy-Typey | Public Race Lobby</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="waiting-interface">
+            <header>
+                <h1>Public Race Lobby</h1>
+                <div class="race-info">
+                    <span id="player-count">Waiting for players...</span>
+                </div>
+                <button class="btn small" id="menu-btn">Leave Lobby</button>
+            </header>
+            
+            <div class="waiting-content">
+                <div class="waiting-players">
+                    <h3>Players in Lobby:</h3>
+                    <ul id="players-list"></ul>
+                </div>
+                
+                <div class="waiting-info">
+                    <p>Race will start automatically when 4 players join or when 2+ players are ready</p>
+                    <p>Current status: <span id="lobby-status">Waiting for players...</span></p>
+                </div>
+                
+                <div class="waiting-controls">
+                    <button class="btn primary" id="ready-btn">I'm Ready!</button>
+                    <button class="btn" id="leave-btn">Leave Lobby</button>
+                </div>
+                
+                <div class="demo-track">
+                    <div class="track">
+                        <div class="finish-line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer>Made with ❤️ by SEEDY</footer>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="./js/public-waiting.js"></script>
+</body>
+</html>

@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seedy-Typey | Multiplayer Race</title>
+    <title>Seedy-Typey | Private Race</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <div class="container">
         <div id="game-interface">
             <header>
-                <h1>Multiplayer Race</h1>
+                <h1>Private Race</h1>
                 <div class="race-info">
-                    <span id="room-info">Public Race</span>
+                    <span id="room-info">Private Room</span>
+                    <span id="room-link-display"></span>
                 </div>
                 <button class="btn small" id="change-char-btn">Change Character</button>
                 <button class="btn small" id="menu-btn">Leave Race</button>
@@ -106,6 +107,6 @@
     </div>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="./js/multiplayer-game.js"></script>
+    <script src="./js/private-game.js"></script>
 </body>
 </html>

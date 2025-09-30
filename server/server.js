@@ -477,3 +477,38 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Seedy-Typey multiplayer server running on port ${PORT}`);
 });
+
+// Add this to the existing server.js in the Socket.io connection handling section:
+
+// Handle character updates
+socket.on('updateCharacter', (data) => {
+    const player = players.get(socket.id);
+    if (player && playerSessions.has(player.playerId)) {
+        const playerData = playerSessions.get(player.playerId);
+        playerData.character = data.character;
+        
+        // Update in current room if any
+        if (player.roomId) {
+            let room;
+            if (player.roomId === 'public') {
+                room = publicRooms.get('public');
+            } else {
+                room = privateRooms.get(player.roomId);
+            }
+            
+            if (room) {
+                const playerInRoom = room.players.find(p => p.socketId === socket.id);
+                if (playerInRoom) {
+                    playerInRoom.character = data.character;
+                    
+                    // Notify all players in the room
+                    if (player.roomId === 'public') {
+                        io.to('public').emit('publicRoomUpdated', { room });
+                    } else {
+                        io.to(room.id).emit('privateRoomUpdated', { room });
+                    }
+                }
+            }
+        }
+    }
+});

@@ -1,4 +1,4 @@
-// Multiplayer game functionality
+// Multiplayer game functionality (for public races)
 document.addEventListener('DOMContentLoaded', function() {
     // DOM elements
     const quoteDisplay = document.getElementById('quote-display');
@@ -10,8 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentWpmElement = document.getElementById('current-wpm');
     const countdownElement = document.getElementById('countdown');
     const countdownNumber = document.getElementById('countdown-number');
-    const roomIdElement = document.getElementById('room-id');
+    const roomInfoElement = document.getElementById('room-info');
     const menuBtn = document.getElementById('menu-btn');
+    const changeCharBtn = document.getElementById('change-char-btn');
+    const charPopup = document.getElementById('char-popup');
+    const closeCharPopup = document.getElementById('close-char-popup');
+    const charOptions = document.querySelectorAll('.char-option');
     const trackElement = document.getElementById('multiplayer-track');
     const playersContainer = document.getElementById('players-container');
 
@@ -29,6 +33,21 @@ document.addEventListener('DOMContentLoaded', function() {
     let playerWPM = 0;
     let playerAccuracy = 100;
     let progressInterval = null;
+    let selectedChar = localStorage.getItem('selectedChar') || 'happy';
+
+    // Character expressions mapping
+    const charExpressions = {
+        'happy': '•ᴗ•',
+        'speedy': '•̀⤙•́',
+        'cool': '¬‿¬',
+        'shy': '◕‿◕',
+        'sleepy': '◕‸◕',
+        'mad': '≖_≖',
+        'sad': '˙◠˙',
+        'nerd': '╭ರ_•́',
+        'robot': '≖⩊≖',
+        'ghost': '✿◕‿◕'
+    };
 
     // Initialize game
     async function initGame() {
@@ -46,9 +65,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Starting multiplayer race:', raceData);
         
         // Update UI
-        roomIdElement.textContent = `Room: ${raceData.roomId}`;
+        roomInfoElement.textContent = 'Public Race';
         renderQuote();
         createPlayerLanes();
+        setupCharacterSelection();
         
         // Connect to socket
         connectToSocket();
@@ -57,6 +77,51 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show waiting message
         quoteDisplay.textContent = 'Waiting for race to start...';
         typingInput.placeholder = 'Race will start soon...';
+    }
+
+    function setupCharacterSelection() {
+        changeCharBtn.addEventListener('click', function() {
+            charPopup.classList.remove('hidden');
+            
+            // Update active state in popup
+            charOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.char === selectedChar) {
+                    option.classList.add('active');
+                }
+            });
+        });
+        
+        closeCharPopup.addEventListener('click', function() {
+            charPopup.classList.add('hidden');
+        });
+        
+        charOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const charType = this.dataset.char;
+                selectedChar = charType;
+                localStorage.setItem('selectedChar', charType);
+                
+                // Update character on server
+                if (socket) {
+                    const playerData = JSON.parse(localStorage.getItem('seedyTypeyPlayer') || '{}');
+                    socket.emit('identify', {
+                        playerId: playerData.id,
+                        name: playerData.name,
+                        character: charType
+                    });
+                }
+                
+                // Update active state
+                charOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Close popup after selection
+                setTimeout(() => {
+                    charPopup.classList.add('hidden');
+                }, 500);
+            });
+        });
     }
 
     function connectToSocket() {
@@ -71,23 +136,17 @@ document.addEventListener('DOMContentLoaded', function() {
             socket.emit('identify', {
                 playerId: playerData.id,
                 name: playerData.name,
-                character: playerData.character
+                character: selectedChar
             });
             
             // Join the room
-            if (raceData.isPrivate) {
-                socket.emit('joinPrivateRoom', { roomId: raceData.roomId });
-            } else {
-                socket.emit('joinPublicRace');
-            }
+            socket.emit('joinPublicRace');
         });
 
         // Listen for player updates
-        socket.on('privateRoomUpdated', handleRoomUpdate);
         socket.on('publicRoomUpdated', handleRoomUpdate);
         
         // Listen for race events
-        socket.on('privateRaceStarted', startRace);
         socket.on('publicRaceStarted', startRace);
 
         socket.on('raceCompleted', showResults);
@@ -125,19 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getCharExpression(charType) {
-        const expressions = {
-            'happy': '•ᴗ•',
-            'speedy': '•̀⤙•́',
-            'cool': '¬‿¬',
-            'shy': '◕‿◕',
-            'sleepy': '◕‸◕',
-            'mad': '≖_≖',
-            'sad': '˙◠˙',
-            'nerd': '╭ರ_•́',
-            'robot': '≖⩊≖',
-            'ghost': '✿◕‿◕'
-        };
-        return expressions[charType] || '•ᴗ•';
+        return charExpressions[charType] || '•ᴗ•';
     }
 
     function updatePlayerProgress(players) {
@@ -379,21 +426,64 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showResults(data) {
-        const winner = data.room.players.reduce((prev, current) => 
-            (prev.finishTime < current.finishTime) ? prev : current
-        );
+        // Sort players by finish time
+        const sortedPlayers = [...data.room.players].sort((a, b) => {
+            if (a.finished && b.finished) return a.finishTime - b.finishTime;
+            if (a.finished) return -1;
+            if (b.finished) return 1;
+            return b.progress - a.progress;
+        });
         
         const playerData = JSON.parse(localStorage.getItem('seedyTypeyPlayer') || '{}');
-        const isWinner = winner.playerId === playerData.id;
+        const playerPosition = sortedPlayers.findIndex(p => p.playerId === playerData.id) + 1;
         
-        showNotification(isWinner ? 
-            '🎉 You won the race!' : 
-            `🏁 Race finished! Winner: ${winner.name}`
-        );
+        showResultsModal(sortedPlayers, playerPosition);
+    }
+
+    function showResultsModal(players, playerPosition) {
+        const resultsHTML = `
+            <div class="modal">
+                <div class="modal-content">
+                    <h2>Race Finished!</h2>
+                    <p>You finished ${getPositionText(playerPosition)}</p>
+                    
+                    <div class="race-results">
+                        <h3>Final Results:</h3>
+                        <div class="results-list">
+                            ${players.map((player, index) => `
+                                <div class="result-item ${index === 0 ? 'winner' : ''}">
+                                    <span class="position">${index + 1}</span>
+                                    <span class="player-name">${player.name}</span>
+                                    <span class="player-stats">${player.finished ? `${(player.finishTime / 1000).toFixed(1)}s` : `${player.progress}%`}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <button class="btn primary" id="play-again-btn">Race Again</button>
+                    <button class="btn" id="results-menu-btn">Main Menu</button>
+                </div>
+            </div>
+        `;
         
-        setTimeout(() => {
+        document.body.insertAdjacentHTML('beforeend', resultsHTML);
+        
+        // Add event listeners to modal buttons
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+            document.querySelector('.modal').remove();
+            window.location.href = 'public-waiting.html';
+        });
+        
+        document.getElementById('results-menu-btn').addEventListener('click', () => {
             window.location.href = 'index.html';
-        }, 4000);
+        });
+    }
+
+    function getPositionText(position) {
+        if (position === 1) return '1st place! 🎉';
+        if (position === 2) return '2nd place!';
+        if (position === 3) return '3rd place!';
+        return `${position}th place`;
     }
 
     function preventCopyPaste(e) {

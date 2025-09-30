@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seedy-Typey | Private Room</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="waiting-interface">
+            <header>
+                <h1>Private Room</h1>
+                <div class="race-info">
+                    <span id="room-id">Loading...</span>
+                </div>
+                <button class="btn small" id="menu-btn">Leave Room</button>
+            </header>
+            
+            <div class="waiting-content">
+                <div class="room-link-section">
+                    <h3>Share this link with friends:</h3>
+                    <div class="room-link-container">
+                        <input type="text" id="room-link" readonly class="room-link-input">
+                        <button class="btn small" id="copy-link-btn">Copy</button>
+                    </div>
+                </div>
+                
+                <div class="waiting-players">
+                    <h3>Players in Room:</h3>
+                    <ul id="players-list"></ul>
+                </div>
+                
+                <div class="waiting-info">
+                    <p id="host-info">You are the host. Start the race when ready!</p>
+                    <p>Need at least 2 players to start</p>
+                </div>
+                
+                <div class="waiting-controls">
+                    <button class="btn primary" id="start-race-btn" disabled>Start Race</button>
+                    <button class="btn" id="leave-btn">Leave Room</button>
+                </div>
+                
+                <div class="demo-track">
+                    <div class="track">
+                        <div class="finish-line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer>Made with ❤️ by SEEDY</footer>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="./js/private-waiting.js"></script>
+</body>
+</html>
