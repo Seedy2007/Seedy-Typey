@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seedy-Typey | Private Race</title>
+    <title>Seedy-Typey | Public Race</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <div class="container">
         <div id="game-interface">
             <header>
-                <h1>Private Race</h1>
+                <h1>Public Typing Race</h1>
                 <div class="race-info">
-                    <span id="room-info">Private Room</span>
-                    <span id="room-link-display"></span>
+                    <span id="room-status">Waiting for players...</span>
                 </div>
                 <button class="btn small" id="change-char-btn">Change Character</button>
-                <button class="btn small" id="menu-btn">Leave Race</button>
             </header>
             
             <div class="character-selection-popup hidden" id="char-popup">
@@ -60,8 +58,7 @@
             
             <div class="race-container">
                 <div class="track" id="multiplayer-track">
-                    <!-- Player lanes will be dynamically added -->
-                    <div class="finish-line"></div>
+                    <!-- Player lanes will be dynamically added here -->
                 </div>
             </div>
             
@@ -73,7 +70,7 @@
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">Time</div>
-                        <div class="stat-value" id="timer">--</div>
+                        <div class="stat-value" id="timer">60</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">Accuracy</div>
@@ -86,27 +83,46 @@
                 </div>
             </div>
             
+            <div class="players-list">
+                <h3>Players in Race (<span id="player-count">0</span>)</h3>
+                <div id="players-container">
+                    <!-- Players will be listed here -->
+                </div>
+            </div>
+            
             <div class="typing-container">
                 <div class="countdown hidden" id="countdown">
                     <span id="countdown-number">3</span>
                 </div>
                 <div class="quote-display" id="quote-display">
-                    Waiting for race to start...
+                    Waiting for players to join... Need at least 2 players to start.
                 </div>
-                <input type="text" class="typing-input" id="typing-input" placeholder="Race will start soon..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
+                <input type="text" class="typing-input" id="typing-input" placeholder="Race will start when enough players are ready..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
                 <div class="current-wpm">
                     Current Speed: <span id="current-wpm">0 WPM</span>
                 </div>
             </div>
             
-            <div class="players-list" id="players-list">
-                <h3>Players</h3>
-                <div id="players-container"></div>
+            <div class="game-controls">
+                <button class="btn primary" id="ready-btn">I'm Ready!</button>
+                <button class="btn secondary" id="menu-btn">Leave Race</button>
             </div>
+            
+            <div class="waiting-info">
+                <h3>Race Info:</h3>
+                <ul>
+                    <li>Waiting for at least 2 players to start</li>
+                    <li>Maximum 4 players per race</li>
+                    <li>Click "I'm Ready!" when you're prepared to race</li>
+                    <li>The race starts automatically when all players are ready</li>
+                </ul>
+            </div>
+            
+            <footer>Made with ❤️ by SEEDY</footer>
         </div>
     </div>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="./js/private-game.js"></script>
+    <script src="./js/public-race.js"></script>
 </body>
 </html>

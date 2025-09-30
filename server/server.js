@@ -2,513 +2,342 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-
-// UPDATED: Configure CORS for GitHub Pages
-app.use(cors({
-  origin: [
-    "https://seedy2007.github.io",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5500",
-    "http://127.0.0.1:5500"
-  ],
-  credentials: true
-}));
-
 const io = socketIo(server, {
-  cors: {
-    origin: [
-      "https://seedy2007.github.io",
-      "http://localhost:3000",
-      "http://127.0.0.1:3000", 
-      "http://localhost:5500",
-      "http://127.0.0.1:5500"
-    ],
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
 });
 
-// Game state storage
-const publicRooms = new Map();
-const privateRooms = new Map();
-const players = new Map();
-const playerSessions = new Map();
-
-// Sample quotes for multiplayer
-const multiplayerQuotes = [
-  "The quick brown fox jumps over the lazy dog while programming amazing games.",
-  "Typing speed is not just about fast fingers but also about accuracy and rhythm in coding.",
-  "In the world of programming, every keystroke brings us closer to creating something wonderful.",
-  "The best way to predict the future of technology is to code it into existence today.",
-  "Programming languages are the brushes with which we paint digital masterpieces for the world.",
-  "Behind every great application lies thousands of perfectly typed lines of clean code.",
-  "The internet connects us all through cables, but code connects us through creativity and innovation.",
-  "Fast typing combined with accuracy is the superpower of every successful programmer and writer.",
-  "Every word you type brings you closer to mastering the art of communication with machines.",
-  "In the race of technology, your typing speed can be the difference between good and great."
-];
-
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// Health check endpoint
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Seedy-Typey Multiplayer Server',
-    status: 'running',
-    publicRoomPlayers: publicRooms.size,
-    privateRooms: privateRooms.size,
-    connectedPlayers: players.size,
-    timestamp: new Date().toISOString()
-  });
-});
+// Serve static files from parent directory (for development)
+app.use(express.static(path.join(__dirname, '..')));
+
+// Game state
+const publicRooms = new Map();
+const players = new Map();
+
+// Quotes for races
+const quotes = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Programming is the art of telling another human what one wants the computer to do.",
+    "Type racing is a fun way to improve your typing speed and accuracy.",
+    "Practice makes perfect when it comes to typing quickly and accurately.",
+    "The only way to learn a new programming language is by writing programs in it.",
+    "Computers are good at following instructions, but not at reading your mind.",
+    "The best error message is the one that never shows up.",
+    "First, solve the problem. Then, write the code.",
+    "Any fool can write code that a computer can understand. Good programmers write code that humans can understand."
+];
+
+// Helper functions
+function getRandomQuote() {
+    return quotes[Math.floor(Math.random() * quotes.length)];
+}
+
+function createRoom() {
+    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const room = {
+        id: roomId,
+        players: new Map(),
+        isRacing: false,
+        quote: '',
+        startTime: null
+    };
+    publicRooms.set(roomId, room);
+    return room;
+}
+
+function findAvailableRoom() {
+    // Find a room with less than 4 players that isn't racing
+    for (let room of publicRooms.values()) {
+        if (room.players.size < 4 && !room.isRacing) {
+            return room;
+        }
+    }
+    // If no available room, create a new one
+    return createRoom();
+}
+
+function cleanupRoom(roomId) {
+    const room = publicRooms.get(roomId);
+    if (room && room.players.size === 0) {
+        publicRooms.delete(roomId);
+        console.log(`Room ${roomId} cleaned up`);
+    }
+}
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-  console.log('Player connected:', socket.id);
-  
-  // Generate or retrieve player ID
-  socket.on('identify', (data) => {
-    const playerId = data.playerId || uuidv4();
-    let playerData = playerSessions.get(playerId);
+    console.log(`User connected: ${socket.id}`);
     
-    if (!playerData) {
-      playerData = {
-        id: playerId,
-        name: data.name || 'Player',
-        character: data.character || 'happy',
-        gamesPlayed: 0,
-        wins: 0,
-        createdAt: new Date().toISOString()
-      };
-      playerSessions.set(playerId, playerData);
-    }
-    
-    players.set(socket.id, { 
-      socketId: socket.id, 
-      playerId: playerId,
-      ...playerData 
-    });
-    
-    socket.emit('identified', { 
-      playerId: playerId, 
-      player: playerData 
-    });
-    
-    console.log(`Player identified: ${playerData.name} (${playerId})`);
-  });
+    let currentRoom = null;
+    let playerData = null;
 
-  // Join public race
-  socket.on('joinPublicRace', () => {
-    const player = players.get(socket.id);
-    if (!player) {
-      socket.emit('error', { message: 'Please identify first' });
-      return;
-    }
-
-    // Add player to public room
-    const publicRoom = getOrCreatePublicRoom();
-    publicRoom.players.push({
-      socketId: socket.id,
-      playerId: player.playerId,
-      name: player.name,
-      character: player.character,
-      ready: false,
-      progress: 0,
-      wpm: 0,
-      accuracy: 100,
-      finished: false
-    });
-
-    socket.join('public');
-    players.set(socket.id, { ...players.get(socket.id), roomId: 'public' });
-
-    // Notify all players in public room
-    io.to('public').emit('publicRoomUpdated', { room: publicRoom });
-
-    console.log(`Player ${player.name} joined public race`);
-
-    // Check if we can start the public race
-    checkPublicRaceStart(publicRoom);
-  });
-
-  // Create a private room
-  socket.on('createPrivateRoom', () => {
-    const player = players.get(socket.id);
-    if (!player) {
-      socket.emit('error', { message: 'Please identify first' });
-      return;
-    }
-
-    const roomId = generateRoomCode();
-    const room = {
-      id: roomId,
-      host: socket.id,
-      players: [{
-        socketId: socket.id,
-        playerId: player.playerId,
-        name: player.name,
-        character: player.character,
-        ready: false,
-        progress: 0,
-        wpm: 0,
-        accuracy: 100,
-        finished: false
-      }],
-      status: 'waiting',
-      quote: getRandomQuote(),
-      startTime: null,
-      createdAt: new Date().toISOString(),
-      isPrivate: true
-    };
-
-    privateRooms.set(roomId, room);
-    socket.join(roomId);
-    players.set(socket.id, { ...players.get(socket.id), roomId });
-    
-    socket.emit('privateRoomCreated', { roomId, room });
-    console.log(`Private room created: ${roomId} by ${player.name}`);
-  });
-
-  // Join private room
-  socket.on('joinPrivateRoom', (data) => {
-    const player = players.get(socket.id);
-    if (!player) {
-      socket.emit('error', { message: 'Please identify first' });
-      return;
-    }
-
-    const { roomId } = data;
-    const room = privateRooms.get(roomId);
-
-    if (!room) {
-      socket.emit('error', { message: 'Room not found' });
-      return;
-    }
-
-    if (room.players.length >= 4) {
-      socket.emit('error', { message: 'Room is full' });
-      return;
-    }
-
-    // Add player to room
-    room.players.push({
-      socketId: socket.id,
-      playerId: player.playerId,
-      name: player.name,
-      character: player.character,
-      ready: false,
-      progress: 0,
-      wpm: 0,
-      accuracy: 100,
-      finished: false
-    });
-
-    socket.join(roomId);
-    players.set(socket.id, { ...players.get(socket.id), roomId });
-
-    // Notify all players in the room
-    io.to(roomId).emit('privateRoomUpdated', { room });
-
-    console.log(`Player ${player.name} joined private room: ${roomId}`);
-  });
-
-  // Player ready status
-  socket.on('playerReady', () => {
-    const player = players.get(socket.id);
-    if (!player || !player.roomId) return;
-
-    if (player.roomId === 'public') {
-      handlePublicReady(socket.id);
-    } else {
-      handlePrivateReady(socket.id);
-    }
-  });
-
-  // Host starts private race
-  socket.on('startPrivateRace', () => {
-    const player = players.get(socket.id);
-    if (!player || !player.roomId || player.roomId === 'public') return;
-
-    const room = privateRooms.get(player.roomId);
-    if (!room || room.host !== socket.id) return;
-
-    if (room.players.length < 2) {
-      socket.emit('error', { message: 'Need at least 2 players to start' });
-      return;
-    }
-
-    startRoomCountdown(room.id, 'private');
-  });
-
-  // Player typing progress
-  socket.on('typingProgress', (data) => {
-    const player = players.get(socket.id);
-    if (!player || !player.roomId) return;
-
-    let room;
-    if (player.roomId === 'public') {
-      room = publicRooms.get('public');
-    } else {
-      room = privateRooms.get(player.roomId);
-    }
-
-    if (!room || room.status !== 'racing') return;
-
-    const playerInRoom = room.players.find(p => p.socketId === socket.id);
-    if (playerInRoom && !playerInRoom.finished) {
-      playerInRoom.progress = data.progress;
-      playerInRoom.wpm = data.wpm;
-      playerInRoom.accuracy = data.accuracy;
-
-      // Check if player finished
-      if (data.progress >= 100) {
-        playerInRoom.finished = true;
-        playerInRoom.finishTime = Date.now() - room.startTime;
+    // Join public room
+    socket.on('joinPublicRoom', (data) => {
+        playerData = {
+            playerId: socket.id,
+            name: data.name || 'Anonymous',
+            character: data.character || 'happy',
+            isReady: false,
+            progress: 0,
+            wpm: 0,
+            accuracy: 100
+        };
         
-        // Update player stats
-        const playerData = playerSessions.get(player.playerId);
-        playerData.gamesPlayed = (playerData.gamesPlayed || 0) + 1;
+        players.set(socket.id, playerData);
         
-        // Check if this player won
-        const finishedPlayers = room.players.filter(p => p.finished);
-        if (finishedPlayers.length === 1) {
-          playerData.wins = (playerData.wins || 0) + 1;
-          socket.emit('raceFinished', { position: 1, wpm: data.wpm });
-        } else {
-          socket.emit('raceFinished', { 
-            position: finishedPlayers.length, 
-            wpm: data.wpm 
-          });
-        }
-
-        // Check if all players finished
-        if (room.players.every(p => p.finished)) {
-          room.status = 'finished';
-          if (player.roomId === 'public') {
-            io.to('public').emit('raceCompleted', { room });
-          } else {
-            io.to(room.id).emit('raceCompleted', { room });
-          }
-        }
-      }
-
-      // Update all players
-      if (player.roomId === 'public') {
-        io.to('public').emit('publicRoomUpdated', { room });
-      } else {
-        io.to(room.id).emit('privateRoomUpdated', { room });
-      }
-    }
-  });
-
-  // Leave room
-  socket.on('leaveRoom', () => {
-    handlePlayerLeave(socket.id);
-  });
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('Player disconnected:', socket.id);
-    handlePlayerLeave(socket.id);
-  });
-});
-
-// Helper functions
-function getOrCreatePublicRoom() {
-  let publicRoom = publicRooms.get('public');
-  if (!publicRoom) {
-    publicRoom = {
-      id: 'public',
-      players: [],
-      status: 'waiting',
-      quote: getRandomQuote(),
-      startTime: null,
-      createdAt: new Date().toISOString(),
-      isPrivate: false
-    };
-    publicRooms.set('public', publicRoom);
-  }
-  return publicRoom;
-}
-
-function generateRoomCode() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-function getRandomQuote() {
-  return multiplayerQuotes[Math.floor(Math.random() * multiplayerQuotes.length)];
-}
-
-function handlePublicReady(socketId) {
-  const publicRoom = publicRooms.get('public');
-  if (!publicRoom) return;
-
-  const playerInRoom = publicRoom.players.find(p => p.socketId === socketId);
-  if (playerInRoom) {
-    playerInRoom.ready = true;
-  }
-
-  checkPublicRaceStart(publicRoom);
-}
-
-function handlePrivateReady(socketId) {
-  const player = players.get(socketId);
-  if (!player || !player.roomId || player.roomId === 'public') return;
-
-  const room = privateRooms.get(player.roomId);
-  if (!room) return;
-
-  const playerInRoom = room.players.find(p => p.socketId === socketId);
-  if (playerInRoom) {
-    playerInRoom.ready = true;
-  }
-
-  io.to(room.id).emit('privateRoomUpdated', { room });
-}
-
-function checkPublicRaceStart(publicRoom) {
-  const readyPlayers = publicRoom.players.filter(p => p.ready);
-  const totalPlayers = publicRoom.players.length;
-
-  if ((readyPlayers.length >= 2 && totalPlayers >= 2) || totalPlayers === 4) {
-    if (publicRoom.status === 'waiting') {
-      startRoomCountdown('public', 'public');
-    }
-  }
-}
-
-function startRoomCountdown(roomId, roomType) {
-  let room;
-  if (roomType === 'public') {
-    room = publicRooms.get(roomId);
-  } else {
-    room = privateRooms.get(roomId);
-  }
-
-  if (!room) return;
-
-  room.status = 'counting';
-  let countdown = 5;
-
-  const countdownEvent = roomType === 'public' ? 'publicCountdownStarted' : 'privateCountdownStarted';
-  io.to(roomId).emit(countdownEvent, { countdown });
-
-  const countdownInterval = setInterval(() => {
-    const countdownEvent = roomType === 'public' ? 'publicCountdown' : 'privateCountdown';
-    io.to(roomId).emit(countdownEvent, { countdown });
-    countdown--;
-
-    if (countdown < 0) {
-      clearInterval(countdownInterval);
-      startRoomRace(roomId, roomType);
-    }
-  }, 1000);
-}
-
-function startRoomRace(roomId, roomType) {
-  let room;
-  if (roomType === 'public') {
-    room = publicRooms.get(roomId);
-  } else {
-    room = privateRooms.get(roomId);
-  }
-
-  if (!room) return;
-
-  room.status = 'racing';
-  room.startTime = Date.now();
-
-  const raceStartedEvent = roomType === 'public' ? 'publicRaceStarted' : 'privateRaceStarted';
-  io.to(roomId).emit(raceStartedEvent, { 
-    room, 
-    quote: room.quote 
-  });
-
-  console.log(`Race started in ${roomType} room: ${roomId}`);
-}
-
-function handlePlayerLeave(socketId) {
-  const player = players.get(socketId);
-  
-  if (player && player.roomId) {
-    if (player.roomId === 'public') {
-      const publicRoom = publicRooms.get('public');
-      if (publicRoom) {
-        publicRoom.players = publicRoom.players.filter(p => p.socketId !== socketId);
-        io.to('public').emit('publicRoomUpdated', { room: publicRoom });
-
-        if (publicRoom.players.length === 0) {
-          publicRooms.delete('public');
-        }
-      }
-    } else {
-      const room = privateRooms.get(player.roomId);
-      if (room) {
-        room.players = room.players.filter(p => p.socketId !== socketId);
+        const room = findAvailableRoom();
+        currentRoom = room;
         
-        io.to(room.id).emit('playerLeft', { 
-          playerName: player.name 
+        room.players.set(socket.id, playerData);
+        socket.join(room.id);
+        
+        console.log(`Player ${playerData.name} joined room ${room.id}`);
+        
+        // Send room info to the joining player
+        socket.emit('roomInfo', {
+            roomId: room.id,
+            players: Array.from(room.players.values())
         });
+        
+        // Notify other players in the room
+        socket.to(room.id).emit('playerJoined', playerData);
+        
+        // Update room status for all players
+        updateRoomStatus(room.id);
+    });
 
-        if (room.players.length === 0) {
-          privateRooms.delete(room.id);
-        } else {
-          io.to(room.id).emit('privateRoomUpdated', { room });
+    // Player ready status
+    socket.on('playerReady', (isReady) => {
+        if (!currentRoom || !playerData) return;
+        
+        playerData.isReady = isReady;
+        currentRoom.players.set(socket.id, playerData);
+        
+        console.log(`Player ${playerData.name} ${isReady ? 'is ready' : 'is not ready'}`);
+        
+        // Notify all players in the room
+        io.to(currentRoom.id).emit('playerReady', {
+            playerId: socket.id,
+            isReady: isReady
+        });
+        
+        // Check if we can start the race
+        checkRaceStart(currentRoom);
+        
+        updateRoomStatus(currentRoom.id);
+    });
+
+    // Player progress update
+    socket.on('playerProgress', (data) => {
+        if (!currentRoom || !playerData || !currentRoom.isRacing) return;
+        
+        playerData.progress = data.progress;
+        playerData.wpm = data.wpm;
+        currentRoom.players.set(socket.id, playerData);
+        
+        // Broadcast progress to other players
+        socket.to(currentRoom.id).emit('playerProgress', {
+            playerId: socket.id,
+            progress: data.progress,
+            wpm: data.wpm
+        });
+    });
+
+    // Player finished race
+    socket.on('raceFinished', (data) => {
+        if (!currentRoom || !playerData || !currentRoom.isRacing) return;
+        
+        playerData.wpm = data.wpm;
+        playerData.accuracy = data.accuracy;
+        playerData.progress = data.progress;
+        playerData.finished = true;
+        currentRoom.players.set(socket.id, playerData);
+        
+        console.log(`Player ${playerData.name} finished with ${data.wpm} WPM`);
+        
+        // Check if all players have finished
+        checkRaceFinish(currentRoom);
+    });
+
+    // Update player data (character, etc.)
+    socket.on('updatePlayer', (data) => {
+        if (!playerData) return;
+        
+        if (data.character) {
+            playerData.character = data.character;
         }
-      }
+        
+        if (currentRoom) {
+            currentRoom.players.set(socket.id, playerData);
+            
+            // Notify other players
+            socket.to(currentRoom.id).emit('playerUpdated', playerData);
+        }
+    });
+
+    // Disconnection handling
+    socket.on('disconnect', () => {
+        console.log(`User disconnected: ${socket.id}`);
+        
+        if (currentRoom) {
+            // Remove player from room
+            currentRoom.players.delete(socket.id);
+            
+            // Notify other players
+            socket.to(currentRoom.id).emit('playerLeft', {
+                playerId: socket.id,
+                name: playerData?.name
+            });
+            
+            // Update room status
+            updateRoomStatus(currentRoom.id);
+            
+            // Clean up empty rooms
+            cleanupRoom(currentRoom.id);
+        }
+        
+        players.delete(socket.id);
+    });
+
+    // Helper function to update room status
+    function updateRoomStatus(roomId) {
+        const room = publicRooms.get(roomId);
+        if (room) {
+            const readyCount = Array.from(room.players.values()).filter(p => p.isReady).length;
+            const totalPlayers = room.players.size;
+            
+            io.to(roomId).emit('roomStatus', {
+                readyPlayers: readyCount,
+                totalPlayers: totalPlayers,
+                canStart: readyCount >= 2 && readyCount === totalPlayers
+            });
+        }
     }
-  }
-  
-  players.delete(socketId);
-}
 
-const PORT = process.env.PORT || 3000;
+    // Helper function to check if race can start
+    function checkRaceStart(room) {
+        const readyPlayers = Array.from(room.players.values()).filter(p => p.isReady);
+        const totalPlayers = room.players.size;
+        
+        if (readyPlayers.length >= 2 && readyPlayers.length === totalPlayers && !room.isRacing) {
+            startRace(room);
+        }
+    }
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Seedy-Typey multiplayer server running on port ${PORT}`);
+    // Start the race
+    function startRace(room) {
+        room.isRacing = true;
+        room.quote = getRandomQuote();
+        room.startTime = new Date();
+        
+        // Reset player progress
+        room.players.forEach(player => {
+            player.progress = 0;
+            player.wpm = 0;
+            player.finished = false;
+        });
+        
+        console.log(`Starting race in room ${room.id} with ${room.players.size} players`);
+        
+        // Notify players that race is starting
+        io.to(room.id).emit('raceStarting', {
+            countdown: 3
+        });
+        
+        // Start the race after countdown
+        setTimeout(() => {
+            io.to(room.id).emit('raceStarted', {
+                quote: room.quote,
+                startTime: room.startTime
+            });
+            console.log(`Race started in room ${room.id}`);
+        }, 3000);
+    }
+
+    // Check if all players have finished
+    function checkRaceFinish(room) {
+        const allFinished = Array.from(room.players.values()).every(player => player.finished);
+        const timeElapsed = new Date() - room.startTime;
+        
+        // Also finish if 60 seconds have passed
+        if (allFinished || timeElapsed > 60000) {
+            finishRace(room);
+        }
+    }
+
+    // Finish the race and send results
+    function finishRace(room) {
+        room.isRacing = false;
+        
+        const results = Array.from(room.players.values()).map(player => ({
+            playerId: player.playerId,
+            name: player.name,
+            wpm: player.wpm,
+            accuracy: player.accuracy,
+            progress: player.progress
+        })).sort((a, b) => b.wpm - a.wpm);
+        
+        console.log(`Race finished in room ${room.id}`);
+        
+        io.to(room.id).emit('raceFinished', {
+            results: results
+        });
+        
+        // Reset player ready status for next race
+        room.players.forEach(player => {
+            player.isReady = false;
+            player.progress = 0;
+            player.wpm = 0;
+            player.finished = false;
+        });
+        
+        // Notify players of reset ready status
+        room.players.forEach((player, playerId) => {
+            io.to(playerId).emit('playerReady', {
+                playerId: playerId,
+                isReady: false
+            });
+        });
+        
+        updateRoomStatus(room.id);
+    }
 });
 
-// Add this to the existing server.js in the Socket.io connection handling section:
+// Routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
 
-// Handle character updates
-socket.on('updateCharacter', (data) => {
-    const player = players.get(socket.id);
-    if (player && playerSessions.has(player.playerId)) {
-        const playerData = playerSessions.get(player.playerId);
-        playerData.character = data.character;
-        
-        // Update in current room if any
-        if (player.roomId) {
-            let room;
-            if (player.roomId === 'public') {
-                room = publicRooms.get('public');
-            } else {
-                room = privateRooms.get(player.roomId);
-            }
-            
-            if (room) {
-                const playerInRoom = room.players.find(p => p.socketId === socket.id);
-                if (playerInRoom) {
-                    playerInRoom.character = data.character;
-                    
-                    // Notify all players in the room
-                    if (player.roomId === 'public') {
-                        io.to('public').emit('publicRoomUpdated', { room });
-                    } else {
-                        io.to(room.id).emit('privateRoomUpdated', { room });
-                    }
-                }
-            }
-        }
-    }
+app.get('/api/rooms', (req, res) => {
+    const roomInfo = Array.from(publicRooms.values()).map(room => ({
+        id: room.id,
+        playerCount: room.players.size,
+        isRacing: room.isRacing
+    }));
+    res.json(roomInfo);
+});
+
+app.get('/api/stats', (req, res) => {
+    res.json({
+        totalRooms: publicRooms.size,
+        totalPlayers: players.size,
+        activeRaces: Array.from(publicRooms.values()).filter(room => room.isRacing).length
+    });
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Seedy-Typey server running on port ${PORT}`);
+    console.log(`Access the game at http://localhost:${PORT}`);
 });

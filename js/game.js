@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let endTime = null;
     let errors = 0;
     let correctCharacters = 0;
+    let totalCharactersTyped = 0;
     let gameActive = false;
     let raceInterval = null;
     let countdownInterval = null;
@@ -98,13 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastTimestamp = 0;
     let playerFinished = false;
     let opponentFinished = false;
-    let lastPlayerProgress = 0;
-    let hasErrorsInCurrentAttempt = false;
     let gameEnded = false;
     let winner = null;
-    let botTypingInterval = null;
-    let botCurrentPosition = 0;
-    let errorPositions = new Set(); // Track character positions that were ever wrong
+    let errorPositions = new Set();
     
     // Initialize game
     async function initGame() {
@@ -143,14 +140,12 @@ document.addEventListener('DOMContentLoaded', function() {
         typingInput.value = '';
         errors = 0;
         correctCharacters = 0;
+        totalCharactersTyped = 0;
         errorPositions = new Set();
         playerFinished = false;
         opponentFinished = false;
-        lastPlayerProgress = 0;
-        hasErrorsInCurrentAttempt = false;
         gameEnded = false;
         winner = null;
-        botCurrentPosition = 0;
         timeLeft = 60;
         
         // Set opponent target WPM
@@ -232,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 timeLeft = 60;
                 errors = 0;
                 correctCharacters = 0;
+                totalCharactersTyped = 0;
                 errorPositions = new Set();
                 opponentProgress = 0;
                 lastTimestamp = performance.now();
@@ -244,8 +240,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Start timer
                 startTimer();
                 
-                // Start bot typing simulation
-                startBotTyping();
+                // Start opponent movement
+                startOpponentMovement();
                 
                 // Start race animation
                 startRace();
@@ -253,39 +249,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
     }
     
-    // Start bot typing simulation
-    function startBotTyping() {
-        if (botTypingInterval) clearInterval(botTypingInterval);
+    // Start opponent movement based on benchmark WPM
+    function startOpponentMovement() {
+        const quoteLength = currentQuote.text.length;
+        const targetWPM = opponentTargetWPM;
         
-        const quoteText = currentQuote.text;
-        const quoteLength = quoteText.length;
+        // Calculate how long it should take SEEDY to finish at target WPM
+        const wordsInQuote = quoteLength / 5;
+        const targetTimeMinutes = wordsInQuote / targetWPM;
+        const targetTimeSeconds = targetTimeMinutes * 60;
         
-        // Calculate time per character based on WPM
-        // Words per minute -> characters per minute -> characters per second
-        const charactersPerSecond = (opponentTargetWPM * 5) / 60;
-        const msPerCharacter = 1000 / charactersPerSecond;
+        // Calculate progress per second
+        const progressPerSecond = 100 / targetTimeSeconds;
         
-        botTypingInterval = setInterval(() => {
-            if (!gameActive || gameEnded) {
-                clearInterval(botTypingInterval);
-                return;
-            }
+        const updateOpponent = () => {
+            if (!gameActive || gameEnded) return;
             
-            // Increment bot position
-            botCurrentPosition++;
+            const currentTime = new Date();
+            const elapsedSeconds = (currentTime - startTime) / 1000;
             
-            // Check if bot finished typing
-            if (botCurrentPosition >= quoteLength) {
-                clearInterval(botTypingInterval);
+            opponentProgress = Math.min(100, progressPerSecond * elapsedSeconds);
+            
+            // Move opponent car
+            opponentCar.style.left = `${5 + (opponentProgress * 0.85)}%`;
+            
+            // Check if opponent finished
+            if (opponentProgress >= 100 && !opponentFinished) {
                 opponentFinished = true;
-                
-                // If opponent finishes first, they win but game continues
-                if (!winner) {
+                if (!playerFinished) {
                     winner = 'opponent';
-                    // Don't end game yet, let player finish
+                    endGame(false);
                 }
             }
-        }, msPerCharacter);
+            
+            requestAnimationFrame(updateOpponent);
+        };
+        
+        updateOpponent();
     }
     
     // Start the timer
@@ -297,23 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timerElement.textContent = timeLeft;
             
             if (timeLeft <= 0 && !gameEnded) {
-                // Time's up, end the game
-                typingInput.disabled = true;
-                if (!playerFinished && !opponentFinished) {
-                    // Determine winner based on who's closer to finish
-                    const quoteLength = currentQuote.text.length;
-                    const playerProgressPercent = (correctCharacters / quoteLength) * 85;
-                    
-                    if (playerProgressPercent > opponentProgress) {
-                        endGame(true);
-                    } else {
-                        endGame(false);
-                    }
-                } else if (playerFinished && !opponentFinished) {
-                    endGame(true); // Player finished before time ran out
-                } else if (opponentFinished && !playerFinished) {
-                    endGame(false); // Opponent finished before time ran out
-                }
+                endGame(false); // Time's up, player loses
             }
         }, 1000);
     }
@@ -325,31 +309,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const animate = (timestamp) => {
             if (!gameActive) return;
             
-            const deltaTime = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
-            
             // Calculate WPM based on correct characters only
-            const elapsedTime = (new Date() - startTime) / 1000 / 60; // in minutes
-            const wpm = Math.round(correctCharacters / 5 / elapsedTime) || 0;
-            
-            // Update WPM display
-            wpmElement.textContent = wpm;
-            currentWpmElement.textContent = `${wpm} WPM`;
-            
-            // Move player car based on progress through text (only correct characters)
-            const quoteLength = currentQuote.text.length;
-            const playerProgressPercent = Math.min(85, (correctCharacters / quoteLength) * 85);
-            
-            // Only update position if progress increased (prevent moving backward)
-            if (playerProgressPercent > lastPlayerProgress) {
-                playerCar.style.left = `${5 + playerProgressPercent}%`;
-                lastPlayerProgress = playerProgressPercent;
+            if (startTime) {
+                const elapsedTime = (new Date() - startTime) / 1000 / 60; // in minutes
+                const wordsTyped = correctCharacters / 5;
+                const wpm = Math.round(wordsTyped / elapsedTime) || 0;
+                
+                // Update WPM display
+                wpmElement.textContent = wpm;
+                currentWpmElement.textContent = `${wpm} WPM`;
             }
-            
-            // Move opponent car based on bot's progress
-            const opponentProgressPercent = Math.min(85, (botCurrentPosition / quoteLength) * 85);
-            opponentProgress = opponentProgressPercent;
-            opponentCar.style.left = `${5 + opponentProgressPercent}%`;
             
             raceInterval = requestAnimationFrame(animate);
         };
@@ -363,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const quoteArray = currentQuote.text.split('');
         const inputArray = typingInput.value.split('');
-        hasErrorsInCurrentAttempt = false;
+        let hasErrorsInCurrentAttempt = false;
         
         // Reset quote display
         quoteDisplay.querySelectorAll('span').forEach((char, index) => {
@@ -397,39 +366,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Count correct characters (consecutive from start)
-        correctCharacters = 0;
+        let newCorrectCharacters = 0;
         for (let i = 0; i < inputArray.length; i++) {
             if (inputArray[i] === quoteArray[i]) {
-                correctCharacters++;
+                newCorrectCharacters++;
             } else {
                 break;
             }
         }
         
-        // Calculate accuracy: (total characters - errors) / total characters
-        const totalCharacters = currentQuote.text.length;
-        const errorCount = errorPositions.size;
-        const accuracy = Math.max(0, Math.round(((totalCharacters - errorCount) / totalCharacters) * 100));
+        // Update total characters typed for accuracy calculation
+        totalCharactersTyped = inputArray.length;
+        
+        // Only update correct characters if it increased (prevents going backward when correcting errors)
+        if (newCorrectCharacters > correctCharacters) {
+            correctCharacters = newCorrectCharacters;
+        }
+        
+        // Calculate accuracy
+        const accuracy = totalCharactersTyped > 0 
+            ? Math.round(((totalCharactersTyped - errorPositions.size) / totalCharactersTyped) * 100)
+            : 100;
         accuracyElement.textContent = `${accuracy}%`;
         
-        // Update progress based on correct characters only
+        // Update progress based on correct characters
         const progress = Math.round((correctCharacters / quoteArray.length) * 100);
         progressElement.textContent = `${progress}%`;
+        
+        // Move player car based on progress
+        const playerProgressPercent = Math.min(85, (correctCharacters / quoteArray.length) * 85);
+        playerCar.style.left = `${5 + playerProgressPercent}%`;
         
         // Check if quote is completed (with no errors at the end)
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly
             playerFinished = true;
-            
-            // Determine winner
-            if (opponentFinished) {
-                // SEEDY finished first, player loses
-                endGame(false);
-            } else {
-                // Player finished first, player wins
-                winner = 'player';
-                endGame(true);
-            }
+            winner = 'player';
+            endGame(true);
         }
     }
     
@@ -458,7 +431,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(timer);
         cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
-        if (botTypingInterval) clearInterval(botTypingInterval);
         
         endTime = new Date();
         typingInput.disabled = true;
@@ -470,10 +442,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeInMinutes = (endTime - startTime) / 1000 / 60;
         const finalWpm = Math.round(correctCharacters / 5 / timeInMinutes) || 0;
         
-        // Calculate final accuracy based on error positions
-        const totalCharacters = currentQuote.text.length;
-        const errorCount = errorPositions.size;
-        const finalAccuracy = Math.max(0, Math.round(((totalCharacters - errorCount) / totalCharacters) * 100));
+        // Calculate final accuracy
+        const finalAccuracy = totalCharactersTyped > 0 
+            ? Math.round(((totalCharactersTyped - errorPositions.size) / totalCharactersTyped) * 100)
+            : 100;
         
         // Show results
         showResults(playerWon, finalWpm, finalAccuracy);
@@ -484,13 +456,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const resultsHTML = `
             <div class="modal">
                 <div class="modal-content">
-                    <h2>${playerWon ? 'You Win!' : 'Game Over'}</h2>
+                    <h2>${playerWon ? 'You Win! 🎉' : 'Game Over'}</h2>
                     <p>${playerWon ? 'Congratulations! You beat SEEDY!' : 'Better luck next time!'}</p>
                     
                     <div class="modal-stats">
                         <div class="modal-stat">
                             <div class="modal-value">${finalWpm}</div>
-                            <div class="modal-label">WPM</div>
+                            <div class="modal-label">Your WPM</div>
                         </div>
                         <div class="modal-stat">
                             <div class="modal-value">${finalAccuracy}%</div>
@@ -501,6 +473,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="modal-label">SEEDY's WPM</div>
                         </div>
                     </div>
+                    
+                    <p class="race-comparison">
+                        ${playerWon ? 
+                            `You typed at <strong>${finalWpm} WPM</strong> while SEEDY was set to <strong>${currentQuote.benchmarkWPM} WPM</strong>` : 
+                            `SEEDY was set to <strong>${currentQuote.benchmarkWPM} WPM</strong> while you typed at <strong>${finalWpm} WPM</strong>`
+                        }
+                    </p>
                     
                     <button class="btn primary" id="play-again-btn">Race Again</button>
                     <button class="btn" id="results-menu-btn">Main Menu</button>
@@ -527,7 +506,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(timer);
         cancelAnimationFrame(raceInterval);
         clearInterval(countdownInterval);
-        if (botTypingInterval) clearInterval(botTypingInterval);
         
         gameActive = false;
         gameEnded = false;
