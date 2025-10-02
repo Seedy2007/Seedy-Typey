@@ -101,10 +101,12 @@ p {
     cursor: not-allowed;
 }
 
-/* Race track styling */
-.race-container, .race-demo {
+/* Enhanced demo animation styles */
+.race-demo {
     width: 100%;
     margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
 }
 
 .track {
@@ -139,23 +141,29 @@ p {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.7);
     z-index: 3;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 8px;
+    border-radius: 10px;
 }
 
-/* Car positioning in separate lanes */
+/* Enhanced car positioning with bouncy animation */
 .car {
     position: absolute;
-    transition: left 0.2s ease-out;
     z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.player, .player-demo {
+.player-demo, .opponent-demo {
+    transition: left 0.1s linear;
+}
+
+.player-demo {
     bottom: 25px;
 }
 
-.opponent, .opponent-demo {
+.opponent-demo {
     top: 25px;
 }
 
@@ -165,13 +173,159 @@ p {
     background: none !important;
 }
 
-/* Character container */
+/* Enhanced character animation */
 .char-container {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     z-index: 4;
+}
+
+.char {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(var(--char-rotate, 0deg)); }
+    50% { transform: translateY(-5px) rotate(var(--char-rotate, 0deg)); }
+}
+
+/* Character-specific animations */
+.char.happy {
+    animation: float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite;
+}
+
+.char.seedy {
+    animation: float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 0 0 5px rgba(253, 187, 45, 0.3); }
+    50% { box-shadow: 0 3px 15px rgba(0, 0, 0, 0.4), 0 0 15px rgba(253, 187, 45, 0.6); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateY(0px) rotate(-2deg); }
+    50% { transform: translateY(-5px) rotate(2deg); }
+}
+
+/* Enhanced finish line with animation */
+.finish-line {
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        white,
+        white 10px,
+        transparent 10px,
+        transparent 20px
+    );
+    right: 50px;
+    top: 0;
+    z-index: 1;
+    animation: finishGlow 2s ease-in-out infinite;
+}
+
+@keyframes finishGlow {
+    0%, 100% { 
+        background: repeating-linear-gradient(
+            to bottom,
+            white,
+            white 10px,
+            transparent 10px,
+            transparent 20px
+        );
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+    50% { 
+        background: repeating-linear-gradient(
+            to bottom,
+            #fdbb2d,
+            #fdbb2d 10px,
+            transparent 10px,
+            transparent 20px
+        );
+        box-shadow: 0 0 15px rgba(253, 187, 45, 0.8);
+    }
+}
+
+.finish-line::after {
+    content: "FINISH";
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    animation: textGlow 2s ease-in-out infinite;
+}
+
+@keyframes textGlow {
+    0%, 100% { 
+        color: white;
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+    50% { 
+        color: #fdbb2d;
+        box-shadow: 0 0 10px rgba(253, 187, 45, 0.6);
+    }
+}
+
+/* Track effects */
+.track::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        transparent 100%);
+    animation: trackShine 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes trackShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Race track styling for actual game */
+.race-container {
+    width: 100%;
+    margin: 2rem 0;
+}
+
+/* Car positioning in separate lanes for actual game */
+.player, .opponent {
+    position: absolute;
+    transition: left 0.2s ease-out;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player {
+    bottom: 25px;
+}
+
+.opponent {
+    top: 25px;
 }
 
 /* Base character style */
@@ -374,36 +528,6 @@ p {
 .char-popup-content .characters-grid {
     grid-template-columns: repeat(5, 1fr);
     margin: 1.5rem 0;
-}
-
-/* Enhanced finish line */
-.finish-line {
-    position: absolute;
-    width: 5px;
-    height: 100%;
-    background: repeating-linear-gradient(
-        to bottom,
-        white,
-        white 10px,
-        transparent 10px,
-        transparent 20px
-    );
-    right: 50px;
-    top: 0;
-    z-index: 1;
-}
-
-.finish-line::after {
-    content: "FINISH";
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
-    font-weight: bold;
-    color: white;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 5px 10px;
-    border-radius: 5px;
 }
 
 /* Menu styling */
@@ -690,6 +814,25 @@ footer {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Player name input styling */
+.player-name-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #fdbb2d;
+    border-radius: 20px;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    text-align: center;
+    max-width: 200px;
+}
+
+.player-name-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
 /* Players list for multiplayer */
@@ -791,39 +934,6 @@ footer {
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Add this to your existing CSS */
-
-/* Player name input styling */
-.player-name-input {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid #fdbb2d;
-    border-radius: 20px;
-    color: white;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    text-align: center;
-    max-width: 200px;
-}
-
-.player-name-input:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-}
-
-/* Remove the old player-info styles and replace with: */
-.player-info {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -885,5 +995,121 @@ footer {
     .quote-display {
         font-size: 1rem;
         padding: 1rem;
+    }
+}
+
+/* Add these new animations to your existing style.css file */
+
+@keyframes floatParticle {
+    0%, 100% { 
+        transform: translateY(0px) translateX(0px);
+        opacity: 0;
+    }
+    50% { 
+        transform: translateY(-20px) translateX(10px);
+        opacity: 1;
+    }
+}
+
+@keyframes carStartFlash {
+    0%, 100% { 
+        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+    }
+    50% { 
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+    }
+}
+
+@keyframes victoryDance {
+    0%, 100% { 
+        transform: translateY(0px) scale(1);
+    }
+    25% { 
+        transform: translateY(-10px) scale(1.1);
+    }
+    50% { 
+        transform: translateY(0px) scale(1.05);
+    }
+    75% { 
+        transform: translateY(-5px) scale(1.08);
+    }
+}
+
+@keyframes speedyPulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(255, 0, 0, 0.5);
+    }
+}
+
+@keyframes coolSpin {
+    0% { 
+        transform: rotate(0deg);
+    }
+    100% { 
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes modalEntrance {
+    0% { 
+        opacity: 0;
+        transform: scale(0.8) translateY(-50px);
+    }
+    100% { 
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modalExit {
+    0% { 
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    100% { 
+        opacity: 0;
+        transform: scale(0.8) translateY(-50px);
+    }
+}
+
+@keyframes slideDown {
+    0% { 
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+    100% { 
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    0% { 
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+}
+
+/* Enhanced track shine animation */
+@keyframes trackShine {
+    0% { 
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    50% { 
+        opacity: 0.5;
+    }
+    100% { 
+        transform: translateX(100%);
+        opacity: 0;
     }
 }

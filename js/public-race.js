@@ -48,6 +48,59 @@ class PublicRaceGame {
         this.connectToServer();
         this.setupEventListeners();
         this.loadPlayerCharacter();
+        this.startTrackEffects();
+    }
+
+    // Enhanced track effects
+    startTrackEffects() {
+        const track = this.multiplayerTrack;
+        if (!track) return;
+
+        // Add shimmer effect
+        const shimmer = document.createElement('div');
+        shimmer.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 100%);
+            animation: trackShine 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        `;
+        track.appendChild(shimmer);
+
+        // Add floating particles
+        this.createFloatingParticles();
+    }
+
+    createFloatingParticles() {
+        const track = this.multiplayerTrack;
+        for (let i = 0; i < 8; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 3px;
+                height: 3px;
+                background: rgba(253, 187, 45, 0.6);
+                border-radius: 50%;
+                animation: floatParticle ${3 + Math.random() * 4}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 5}s;
+                z-index: 1;
+            `;
+            
+            // Random position along the track
+            const left = 10 + Math.random() * 80;
+            const top = 10 + Math.random() * 80;
+            particle.style.left = `${left}%`;
+            particle.style.top = `${top}%`;
+            
+            track.appendChild(particle);
+        }
     }
 
     connectToServer() {
@@ -190,7 +243,33 @@ class PublicRaceGame {
                 const charElement = playerCar.querySelector('.char');
                 charElement.className = `char ${charType}`;
                 charElement.textContent = this.getCharacterText(charType);
+                
+                // Add character-specific animation
+                this.applyCharacterAnimation(charElement, charType);
             }
+        }
+    }
+
+    applyCharacterAnimation(charElement, charType) {
+        // Remove existing animations
+        charElement.style.animation = '';
+        
+        // Add character-specific animations
+        switch(charType) {
+            case 'happy':
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite';
+                break;
+            case 'speedy':
+                charElement.style.animation = 'float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite';
+                break;
+            case 'cool':
+                charElement.style.animation = 'float 2s ease-in-out infinite, coolSpin 4s linear infinite';
+                break;
+            case 'seedy':
+                charElement.style.animation = 'float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate';
+                break;
+            default:
+                charElement.style.animation = 'float 2s ease-in-out infinite';
         }
     }
 
@@ -302,10 +381,14 @@ class PublicRaceGame {
             this.createPlayerLane(player);
         });
         
-        // Add finish line
+        // Add enhanced finish line
         const finishLine = document.createElement('div');
         finishLine.className = 'finish-line';
+        finishLine.style.animation = 'finishGlow 2s ease-in-out infinite';
         this.multiplayerTrack.appendChild(finishLine);
+        
+        // Restart track effects
+        this.startTrackEffects();
     }
 
     createPlayerLane(player) {
@@ -333,6 +416,9 @@ class PublicRaceGame {
         const car = document.getElementById(`car-${player.playerId}`);
         if (car) {
             car.style.left = '5%';
+            // Apply character animation
+            const charElement = car.querySelector('.char');
+            this.applyCharacterAnimation(charElement, player.character);
         }
     }
 
@@ -342,6 +428,7 @@ class PublicRaceGame {
             const charElement = car.querySelector('.char');
             charElement.className = `char ${playerData.character}`;
             charElement.textContent = this.getCharacterText(playerData.character);
+            this.applyCharacterAnimation(charElement, playerData.character);
         }
     }
 
@@ -353,6 +440,7 @@ class PublicRaceGame {
                 readyIndicator = document.createElement('div');
                 readyIndicator.className = 'ready-indicator';
                 readyIndicator.textContent = '✓';
+                readyIndicator.style.animation = 'pulse 1s infinite';
                 car.appendChild(readyIndicator);
             } else if (!isReady && readyIndicator) {
                 readyIndicator.remove();
@@ -371,7 +459,19 @@ class PublicRaceGame {
         const car = document.getElementById(`car-${playerId}`);
         if (car) {
             const progressPercent = Math.min(85, progress * 85);
+            
+            // Smooth transition with enhanced easing
+            car.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             car.style.left = `${5 + progressPercent}%`;
+            
+            // Add speed effect based on WPM
+            if (wpm > 80) {
+                car.style.filter = 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.7))';
+            } else if (wpm > 60) {
+                car.style.filter = 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.5))';
+            } else {
+                car.style.filter = 'none';
+            }
         }
     }
 
@@ -394,6 +494,12 @@ class PublicRaceGame {
         this.readyBtn.classList.toggle('primary', !this.isReady);
         this.readyBtn.classList.toggle('secondary', this.isReady);
         
+        // Add button animation
+        this.readyBtn.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            this.readyBtn.style.transform = 'scale(1)';
+        }, 150);
+        
         if (this.socket) {
             this.socket.emit('playerReady', this.isReady);
         }
@@ -412,16 +518,31 @@ class PublicRaceGame {
         let count = 3;
         this.countdownNumber.textContent = count;
         
+        // Enhanced countdown animation
+        this.countdownNumber.style.animation = 'pulse 1s infinite';
+        
         const countdownInterval = setInterval(() => {
             count--;
             if (count > 0) {
                 this.countdownNumber.textContent = count;
+                // Add scale effect
+                this.countdownNumber.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.countdownNumber.style.transform = 'scale(1)';
+                }, 200);
             } else {
                 this.countdownNumber.textContent = 'GO!';
+                this.countdownNumber.style.color = '#4CAF50';
+                this.countdownNumber.style.fontSize = '8rem';
+                
                 setTimeout(() => {
                     this.countdown.classList.add('hidden');
                     clearInterval(countdownInterval);
                     this.isCountdown = false;
+                    // Reset countdown styles
+                    this.countdownNumber.style.color = '#fdbb2d';
+                    this.countdownNumber.style.fontSize = '6rem';
+                    this.countdownNumber.style.animation = '';
                 }, 500);
             }
         }, 1000);
@@ -448,6 +569,22 @@ class PublicRaceGame {
         
         // Start race animation
         this.startRaceAnimation();
+        
+        // Add race start effects
+        this.addRaceStartEffects();
+    }
+
+    addRaceStartEffects() {
+        // Add flash effect to all cars
+        this.players.forEach((player, playerId) => {
+            const car = document.getElementById(`car-${playerId}`);
+            if (car) {
+                car.style.animation = 'carStartFlash 0.5s ease-in-out';
+                setTimeout(() => {
+                    car.style.animation = '';
+                }, 500);
+            }
+        });
     }
 
     displayQuote() {
@@ -460,9 +597,10 @@ class PublicRaceGame {
             this.quoteDisplay.appendChild(charSpan);
         }
         
-        // Highlight first character
+        // Highlight first character with animation
         if (this.quoteDisplay.firstChild) {
             this.quoteDisplay.firstChild.classList.add('current');
+            this.quoteDisplay.firstChild.style.animation = 'pulse 1s infinite';
         }
     }
 
@@ -472,6 +610,15 @@ class PublicRaceGame {
         this.timerInterval = setInterval(() => {
             this.timeLeft--;
             this.timerDisplay.textContent = this.timeLeft;
+            
+            // Add warning effect when time is low
+            if (this.timeLeft <= 10) {
+                this.timerDisplay.style.color = '#e74c3c';
+                this.timerDisplay.style.animation = 'pulse 0.5s infinite';
+            } else {
+                this.timerDisplay.style.color = '';
+                this.timerDisplay.style.animation = '';
+            }
             
             if (this.timeLeft <= 0) {
                 this.finishRace();
@@ -491,9 +638,21 @@ class PublicRaceGame {
                 const wordsTyped = this.correctCharacters / 5;
                 this.wpm = Math.round(wordsTyped / elapsedTime) || 0;
                 
-                // Update WPM display
+                // Update WPM display with color coding
                 this.wpmDisplay.textContent = this.wpm;
                 this.currentWpmDisplay.textContent = `${this.wpm} WPM`;
+                
+                // Color code based on WPM
+                if (this.wpm > 80) {
+                    this.wpmDisplay.style.color = '#4CAF50';
+                    this.currentWpmDisplay.style.color = '#4CAF50';
+                } else if (this.wpm > 60) {
+                    this.wpmDisplay.style.color = '#fdbb2d';
+                    this.currentWpmDisplay.style.color = '#fdbb2d';
+                } else {
+                    this.wpmDisplay.style.color = '';
+                    this.currentWpmDisplay.style.color = '';
+                }
             }
             
             this.raceInterval = requestAnimationFrame(animate);
@@ -515,24 +674,31 @@ class PublicRaceGame {
             
             // Remove all classes
             char.classList.remove('correct', 'incorrect', 'current');
+            char.style.animation = '';
             
             if (typedChar == null) {
                 // Not typed yet
                 if (index === inputArray.length) {
                     char.classList.add('current');
+                    char.style.animation = 'pulse 1s infinite';
                 }
             } else if (typedChar === quoteArray[index]) {
                 // Correct character
                 char.classList.add('correct');
                 if (index === inputArray.length - 1) {
                     char.classList.add('current');
+                    char.style.animation = 'pulse 1s infinite';
                 }
             } else {
                 // Incorrect character
                 char.classList.add('incorrect');
                 if (index === inputArray.length - 1) {
                     char.classList.add('current');
+                    char.style.animation = 'pulse 1s infinite';
                 }
+                
+                // Add shake animation for errors
+                char.style.animation = 'shake 0.5s ease-in-out';
                 
                 // Mark this position as having an error
                 this.errorPositions.add(index);
@@ -564,15 +730,30 @@ class PublicRaceGame {
             : 100;
         this.accuracyDisplay.textContent = `${accuracy}%`;
         
+        // Color code accuracy
+        if (accuracy >= 95) {
+            this.accuracyDisplay.style.color = '#4CAF50';
+        } else if (accuracy >= 90) {
+            this.accuracyDisplay.style.color = '#fdbb2d';
+        } else {
+            this.accuracyDisplay.style.color = '#e74c3c';
+        }
+        
         // Update progress based on correct characters
         this.progress = this.correctCharacters / quoteArray.length;
         this.progressDisplay.textContent = `${Math.round(this.progress * 100)}%`;
         
-        // Move player car based on progress
+        // Move player car based on progress with enhanced animation
         const playerProgressPercent = Math.min(85, this.progress * 85);
         const playerCar = document.getElementById(`car-${this.playerId}`);
         if (playerCar) {
+            playerCar.style.transition = 'left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             playerCar.style.left = `${5 + playerProgressPercent}%`;
+            
+            // Add boost effect when progressing quickly
+            if (this.wpm > 80) {
+                playerCar.style.filter = 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))';
+            }
         }
         
         // Send progress to server
@@ -599,6 +780,13 @@ class PublicRaceGame {
         this.typingInput.disabled = true;
         clearInterval(this.timerInterval);
         cancelAnimationFrame(this.raceInterval);
+        
+        // Add finish effect to player car
+        const playerCar = document.getElementById(`car-${this.playerId}`);
+        if (playerCar) {
+            playerCar.style.animation = 'victoryDance 1s ease-in-out';
+            playerCar.style.filter = 'drop-shadow(0 0 20px rgba(76, 175, 80, 0.8))';
+        }
         
         // Calculate final stats
         const endTime = new Date();
@@ -662,9 +850,15 @@ class PublicRaceGame {
         
         document.body.appendChild(modal);
         
+        // Add modal entrance animation
+        modal.style.animation = 'modalEntrance 0.5s ease-out';
+        
         document.getElementById('play-again-btn').addEventListener('click', () => {
-            document.body.removeChild(modal);
-            this.restartRace();
+            modal.style.animation = 'modalExit 0.3s ease-in';
+            setTimeout(() => {
+                document.body.removeChild(modal);
+                this.restartRace();
+            }, 300);
         });
         
         document.getElementById('main-menu-btn').addEventListener('click', () => {
@@ -697,10 +891,15 @@ class PublicRaceGame {
         
         // Reset displays
         this.wpmDisplay.textContent = '0';
+        this.wpmDisplay.style.color = '';
         this.timerDisplay.textContent = '60';
+        this.timerDisplay.style.color = '';
+        this.timerDisplay.style.animation = '';
         this.accuracyDisplay.textContent = '100%';
+        this.accuracyDisplay.style.color = '';
         this.progressDisplay.textContent = '0%';
         this.currentWpmDisplay.textContent = '0 WPM';
+        this.currentWpmDisplay.style.color = '';
         
         this.quoteDisplay.textContent = 'Waiting for players to join... Need at least 2 players to start.';
         this.roomStatus.textContent = 'Waiting for players...';
@@ -710,6 +909,9 @@ class PublicRaceGame {
             const car = document.getElementById(`car-${playerId}`);
             if (car) {
                 car.style.left = '5%';
+                car.style.transition = 'left 0.5s ease-out';
+                car.style.filter = 'none';
+                car.style.animation = '';
                 const readyIndicator = car.querySelector('.ready-indicator');
                 if (readyIndicator) {
                     readyIndicator.remove();

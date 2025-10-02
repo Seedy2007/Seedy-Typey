@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
         races: 0
     };
 
+    // Animation cleanup function
+    let cleanupDemo = null;
+
     // Check if player data exists in localStorage
     function loadPlayerData() {
         const savedData = localStorage.getItem('seedyPlayerData');
@@ -139,41 +142,95 @@ document.addEventListener('DOMContentLoaded', function() {
         instructions.classList.toggle('hidden');
     });
 
-    // Demo animation
+    // Enhanced demo animation
     function startDemoAnimation() {
         const playerDemo = document.querySelector('.player-demo');
         const opponentDemo = document.querySelector('.opponent-demo');
         
         if (playerDemo && opponentDemo) {
-            // Reset positions
-            playerDemo.style.left = '10px';
-            opponentDemo.style.left = '10px';
+            let playerAnimationId, opponentAnimationId;
             
-            // Animate player
-            setTimeout(() => {
-                playerDemo.style.transition = 'left 3s linear';
-                playerDemo.style.left = 'calc(100% - 100px)';
-            }, 500);
-            
-            // Animate opponent with some variation
-            setTimeout(() => {
-                opponentDemo.style.transition = 'left 3.5s linear';
-                opponentDemo.style.left = 'calc(100% - 120px)';
-            }, 1000);
-            
-            // Reset and restart animation
-            setTimeout(() => {
-                playerDemo.style.transition = 'none';
-                opponentDemo.style.transition = 'none';
-                playerDemo.style.left = '10px';
-                opponentDemo.style.left = '10px';
+            function animatePlayer() {
+                const trackWidth = document.querySelector('.track').offsetWidth;
+                const charWidth = 60; // Approximate character width
                 
-                setTimeout(startDemoAnimation, 1000);
-            }, 4500);
+                // Random speed between 2-4 seconds
+                const duration = 2000 + Math.random() * 2000;
+                const startTime = Date.now();
+                
+                function updatePlayerPosition() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Ease-out function for smooth deceleration at the end
+                    const easeProgress = 1 - Math.pow(1 - progress, 3);
+                    const newPosition = 10 + (trackWidth - charWidth - 20) * easeProgress;
+                    
+                    playerDemo.style.left = `${newPosition}px`;
+                    
+                    if (progress < 1) {
+                        playerAnimationId = requestAnimationFrame(updatePlayerPosition);
+                    } else {
+                        // Immediately reset and restart with new random speed
+                        playerDemo.style.left = '10px';
+                        setTimeout(animatePlayer, 100); // Small delay before restarting
+                    }
+                }
+                
+                playerAnimationId = requestAnimationFrame(updatePlayerPosition);
+            }
+            
+            function animateOpponent() {
+                const trackWidth = document.querySelector('.track').offsetWidth;
+                const charWidth = 60; // Approximate character width
+                
+                // Random speed between 1.5-3.5 seconds (slightly faster variations)
+                const duration = 1500 + Math.random() * 2000;
+                const startTime = Date.now();
+                
+                function updateOpponentPosition() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Different easing for opponent
+                    const easeProgress = progress < 0.8 ? 
+                        progress * (2 - progress) : // ease-out quad for most of the race
+                        0.96 + 0.04 * ((progress - 0.8) / 0.2); // slow finish
+                    
+                    const newPosition = 10 + (trackWidth - charWidth - 20) * easeProgress;
+                    
+                    opponentDemo.style.left = `${newPosition}px`;
+                    
+                    if (progress < 1) {
+                        opponentAnimationId = requestAnimationFrame(updateOpponentPosition);
+                    } else {
+                        // Immediately reset and restart with new random speed
+                        opponentDemo.style.left = '10px';
+                        setTimeout(animateOpponent, 150); // Small delay before restarting
+                    }
+                }
+                
+                opponentAnimationId = requestAnimationFrame(updateOpponentPosition);
+            }
+            
+            // Start both animations
+            animatePlayer();
+            setTimeout(animateOpponent, 500); // Staggered start
+            
+            // Cleanup function
+            return () => {
+                if (playerAnimationId) cancelAnimationFrame(playerAnimationId);
+                if (opponentAnimationId) cancelAnimationFrame(opponentAnimationId);
+            };
         }
     }
 
     // Initialize
     initPlayerData();
-    startDemoAnimation();
+    cleanupDemo = startDemoAnimation();
+
+    // Clean up animation when leaving page
+    window.addEventListener('beforeunload', () => {
+        if (cleanupDemo) cleanupDemo();
+    });
 });

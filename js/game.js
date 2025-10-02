@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const charPopup = document.getElementById('char-popup');
     const closeCharPopup = document.getElementById('close-char-popup');
     const charOptions = document.querySelectorAll('.char-option');
+    const track = document.querySelector('.track');
     
     // Character expressions mapping
     const charExpressions = {
@@ -40,12 +41,88 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedChar = localStorage.getItem('selectedChar') || 'happy';
     updatePlayerCharacter(selectedChar);
     
+    // Enhanced track effects
+    function startTrackEffects() {
+        if (!track) return;
+
+        // Add shimmer effect
+        const shimmer = document.createElement('div');
+        shimmer.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 100%);
+            animation: trackShine 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        `;
+        track.appendChild(shimmer);
+
+        // Add floating particles
+        createFloatingParticles();
+    }
+
+    function createFloatingParticles() {
+        for (let i = 0; i < 6; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 3px;
+                height: 3px;
+                background: rgba(253, 187, 45, 0.6);
+                border-radius: 50%;
+                animation: floatParticle ${3 + Math.random() * 4}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 5}s;
+                z-index: 1;
+            `;
+            
+            // Random position along the track
+            const left = 10 + Math.random() * 80;
+            const top = 10 + Math.random() * 80;
+            particle.style.left = `${left}%`;
+            particle.style.top = `${top}%`;
+            
+            track.appendChild(particle);
+        }
+    }
+
     // Update player character function
     function updatePlayerCharacter(charType) {
         selectedChar = charType;
         playerChar.textContent = charExpressions[charType] || '•ᴗ•';
         playerChar.className = 'char ' + charType;
         localStorage.setItem('selectedChar', charType);
+        
+        // Apply character-specific animation
+        applyCharacterAnimation(playerChar, charType);
+    }
+
+    function applyCharacterAnimation(charElement, charType) {
+        // Remove existing animations
+        charElement.style.animation = '';
+        
+        // Add character-specific animations
+        switch(charType) {
+            case 'happy':
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite';
+                break;
+            case 'speedy':
+                charElement.style.animation = 'float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite';
+                break;
+            case 'cool':
+                charElement.style.animation = 'float 2s ease-in-out infinite, coolSpin 4s linear infinite';
+                break;
+            case 'seedy':
+                charElement.style.animation = 'float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate';
+                break;
+            default:
+                charElement.style.animation = 'float 2s ease-in-out infinite';
+        }
     }
     
     // Character selection popup
@@ -123,6 +200,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set up event listeners
             setupEventListeners();
             
+            // Start track effects
+            startTrackEffects();
+            
         } catch (error) {
             console.error('Error loading quotes:', error);
             quoteDisplay.textContent = "Error loading quotes. Please check the console for details.";
@@ -162,9 +242,20 @@ document.addEventListener('DOMContentLoaded', function() {
         accuracyElement.textContent = '100%';
         currentWpmElement.textContent = '0 WPM';
         
-        // Reset cars
+        // Reset cars with enhanced animations
+        resetCars();
+    }
+
+    function resetCars() {
         playerCar.style.left = '5%';
+        playerCar.style.transition = 'left 0.5s ease-out';
+        playerCar.style.filter = 'none';
+        playerCar.style.animation = '';
+        
         opponentCar.style.left = '5%';
+        opponentCar.style.transition = 'left 0.5s ease-out';
+        opponentCar.style.filter = 'none';
+        opponentCar.style.animation = '';
     }
     
     // Render the current quote with styling
@@ -178,9 +269,10 @@ document.addEventListener('DOMContentLoaded', function() {
             quoteDisplay.appendChild(charSpan);
         }
         
-        // Highlight first character
+        // Highlight first character with animation
         if (quoteDisplay.firstChild) {
             quoteDisplay.firstChild.classList.add('current');
+            quoteDisplay.firstChild.style.animation = 'pulse 1s infinite';
         }
     }
     
@@ -197,6 +289,16 @@ document.addEventListener('DOMContentLoaded', function() {
         menuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
+
+        // Add button hover effects
+        [startRaceBtn, restartBtn, menuBtn].forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px) scale(1.05)';
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
     }
     
     // Start the game with countdown
@@ -205,6 +307,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Disable start button during game
         startRaceBtn.disabled = true;
+        startRaceBtn.style.opacity = '0.7';
         
         // Disable input during countdown
         typingInput.disabled = true;
@@ -215,44 +318,75 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let count = 3;
         countdownNumber.textContent = count;
+        countdownNumber.style.animation = 'pulse 1s infinite';
         
         countdownInterval = setInterval(() => {
             count--;
             
             if (count > 0) {
                 countdownNumber.textContent = count;
+                // Add scale effect
+                countdownNumber.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    countdownNumber.style.transform = 'scale(1)';
+                }, 200);
             } else {
                 clearInterval(countdownInterval);
-                countdownElement.classList.add('hidden');
+                countdownNumber.textContent = 'GO!';
+                countdownNumber.style.color = '#4CAF50';
+                countdownNumber.style.fontSize = '8rem';
                 
-                // Start the game
-                gameActive = true;
-                startTime = new Date();
-                timeLeft = 60;
-                errors = 0;
-                correctCharacters = 0;
-                totalCharactersTyped = 0;
-                errorPositions = new Set();
-                opponentProgress = 0;
-                lastTimestamp = performance.now();
-                opponentFinishTime = null;
-                botFinishedFirst = false;
-                
-                // Enable input
-                typingInput.disabled = false;
-                typingInput.placeholder = "Start typing...";
-                typingInput.focus();
-                
-                // Start timer
-                startTimer();
-                
-                // Start opponent movement
-                startOpponentMovement();
-                
-                // Start race animation
-                startRace();
+                setTimeout(() => {
+                    countdownElement.classList.add('hidden');
+                    
+                    // Start the game
+                    gameActive = true;
+                    startTime = new Date();
+                    timeLeft = 60;
+                    errors = 0;
+                    correctCharacters = 0;
+                    totalCharactersTyped = 0;
+                    errorPositions = new Set();
+                    opponentProgress = 0;
+                    lastTimestamp = performance.now();
+                    opponentFinishTime = null;
+                    botFinishedFirst = false;
+                    
+                    // Enable input
+                    typingInput.disabled = false;
+                    typingInput.placeholder = "Start typing...";
+                    typingInput.focus();
+                    
+                    // Start timer
+                    startTimer();
+                    
+                    // Start opponent movement
+                    startOpponentMovement();
+                    
+                    // Start race animation
+                    startRace();
+                    
+                    // Add race start effects
+                    addRaceStartEffects();
+                    
+                    // Reset countdown styles
+                    countdownNumber.style.color = '#fdbb2d';
+                    countdownNumber.style.fontSize = '6rem';
+                    countdownNumber.style.animation = '';
+                }, 500);
             }
         }, 1000);
+    }
+
+    function addRaceStartEffects() {
+        // Flash effect for both cars
+        playerCar.style.animation = 'carStartFlash 0.5s ease-in-out';
+        opponentCar.style.animation = 'carStartFlash 0.5s ease-in-out';
+        
+        setTimeout(() => {
+            playerCar.style.animation = '';
+            opponentCar.style.animation = '';
+        }, 500);
     }
     
     // Start opponent movement based on benchmark WPM
@@ -276,13 +410,23 @@ document.addEventListener('DOMContentLoaded', function() {
             
             opponentProgress = Math.min(100, progressPerSecond * elapsedSeconds);
             
-            // Move opponent car
+            // Move opponent car with enhanced animation
+            opponentCar.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             opponentCar.style.left = `${5 + (opponentProgress * 0.85)}%`;
+            
+            // Add speed effect based on progress
+            if (opponentProgress > 50) {
+                opponentCar.style.filter = 'drop-shadow(0 0 8px rgba(255, 69, 0, 0.6))';
+            }
             
             // Check if opponent finished
             if (opponentProgress >= 100 && !opponentFinished) {
                 opponentFinished = true;
                 opponentFinishTime = new Date();
+                
+                // Victory effect for opponent
+                opponentCar.style.animation = 'victoryDance 1s ease-in-out';
+                opponentCar.style.filter = 'drop-shadow(0 0 20px rgba(255, 69, 0, 0.8))';
                 
                 // If opponent finished first, mark that bot finished first but don't end the game
                 if (!playerFinished) {
@@ -300,8 +444,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show message when bot finishes first
     function showBotFinishedMessage() {
-        // You can add a visual indicator here if you want
-        console.log("SEEDY finished first! You lost, but you can still complete the race.");
+        // Create a temporary notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideDown 0.5s ease-out;
+        `;
+        notification.textContent = "SEEDY finished first! Keep going to complete the race!";
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideUp 0.5s ease-in';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 500);
+        }, 3000);
     }
     
     // Start the timer
@@ -311,6 +477,15 @@ document.addEventListener('DOMContentLoaded', function() {
         timer = setInterval(() => {
             timeLeft--;
             timerElement.textContent = timeLeft;
+            
+            // Add warning effect when time is low
+            if (timeLeft <= 10) {
+                timerElement.style.color = '#e74c3c';
+                timerElement.style.animation = 'pulse 0.5s infinite';
+            } else {
+                timerElement.style.color = '';
+                timerElement.style.animation = '';
+            }
             
             if (timeLeft <= 0 && !gameEnded) {
                 // Time's up - determine winner
@@ -348,9 +523,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 const wordsTyped = correctCharacters / 5;
                 const wpm = Math.round(wordsTyped / elapsedTime) || 0;
                 
-                // Update WPM display
+                // Update WPM display with color coding
                 wpmElement.textContent = wpm;
                 currentWpmElement.textContent = `${wpm} WPM`;
+                
+                // Color code based on WPM
+                if (wpm > 80) {
+                    wpmElement.style.color = '#4CAF50';
+                    currentWpmElement.style.color = '#4CAF50';
+                } else if (wpm > 60) {
+                    wpmElement.style.color = '#fdbb2d';
+                    currentWpmElement.style.color = '#fdbb2d';
+                } else {
+                    wpmElement.style.color = '';
+                    currentWpmElement.style.color = '';
+                }
             }
             
             raceInterval = requestAnimationFrame(animate);
@@ -373,24 +560,31 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Remove all classes
             char.classList.remove('correct', 'incorrect', 'current');
+            char.style.animation = '';
             
             if (typedChar == null) {
                 // Not typed yet
                 if (index === inputArray.length) {
                     char.classList.add('current');
+                    char.style.animation = 'pulse 1s infinite';
                 }
             } else if (typedChar === quoteArray[index]) {
                 // Correct character
                 char.classList.add('correct');
                 if (index === inputArray.length - 1) {
                     char.classList.add('current');
+                    char.style.animation = 'pulse 1s infinite';
                 }
             } else {
                 // Incorrect character
                 char.classList.add('incorrect');
                 if (index === inputArray.length - 1) {
                     char.classList.add('current');
+                    char.style.animation = 'pulse 1s infinite';
                 }
+                
+                // Add shake animation for errors
+                char.style.animation = 'shake 0.5s ease-in-out';
                 
                 // Mark this position as having an error
                 errorPositions.add(index);
@@ -422,18 +616,38 @@ document.addEventListener('DOMContentLoaded', function() {
             : 100;
         accuracyElement.textContent = `${accuracy}%`;
         
+        // Color code accuracy
+        if (accuracy >= 95) {
+            accuracyElement.style.color = '#4CAF50';
+        } else if (accuracy >= 90) {
+            accuracyElement.style.color = '#fdbb2d';
+        } else {
+            accuracyElement.style.color = '#e74c3c';
+        }
+        
         // Update progress based on correct characters
         const progress = Math.round((correctCharacters / quoteArray.length) * 100);
         progressElement.textContent = `${progress}%`;
         
-        // Move player car based on progress
+        // Move player car based on progress with enhanced animation
         const playerProgressPercent = Math.min(85, (correctCharacters / quoteArray.length) * 85);
+        playerCar.style.transition = 'left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         playerCar.style.left = `${5 + playerProgressPercent}%`;
+        
+        // Add boost effect when progressing quickly
+        const currentWpm = parseInt(wpmElement.textContent) || 0;
+        if (currentWpm > 80) {
+            playerCar.style.filter = 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))';
+        }
         
         // Check if quote is completed (with no errors at the end)
         if (inputArray.length === quoteArray.length && !hasErrorsInCurrentAttempt && !playerFinished) {
             // Quote completed correctly
             playerFinished = true;
+            
+            // Victory effect for player
+            playerCar.style.animation = 'victoryDance 1s ease-in-out';
+            playerCar.style.filter = 'drop-shadow(0 0 20px rgba(76, 175, 80, 0.8))';
             
             // If player finished first, end the game immediately with player as winner
             if (!opponentFinished) {
@@ -476,6 +690,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Re-enable start button
         startRaceBtn.disabled = false;
+        startRaceBtn.style.opacity = '1';
         
         // Calculate final WPM based on correct characters only
         const timeInMinutes = (endTime - startTime) / 1000 / 60;
@@ -528,10 +743,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.insertAdjacentHTML('beforeend', resultsHTML);
         
+        const modal = document.querySelector('.modal');
+        modal.style.animation = 'modalEntrance 0.5s ease-out';
+        
         // Add event listeners to modal buttons
         document.getElementById('play-again-btn').addEventListener('click', () => {
-            document.querySelector('.modal').remove();
-            restartGame();
+            modal.style.animation = 'modalExit 0.3s ease-in';
+            setTimeout(() => {
+                modal.remove();
+                restartGame();
+            }, 300);
         });
         
         document.getElementById('results-menu-btn').addEventListener('click', () => {
@@ -552,17 +773,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Re-enable start button
         startRaceBtn.disabled = false;
+        startRaceBtn.style.opacity = '1';
         
         // Reset UI
         timerElement.textContent = timeLeft;
+        timerElement.style.color = '';
+        timerElement.style.animation = '';
         wpmElement.textContent = '0';
+        wpmElement.style.color = '';
         accuracyElement.textContent = '100%';
+        accuracyElement.style.color = '';
         currentWpmElement.textContent = '0 WPM';
+        currentWpmElement.style.color = '';
         progressElement.textContent = '0%';
         
         // Reset cars
-        playerCar.style.left = '5%';
-        opponentCar.style.left = '5%';
+        resetCars();
         
         // Select a new random quote
         selectRandomQuote();
