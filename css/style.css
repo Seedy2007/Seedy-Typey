@@ -200,11 +200,191 @@ p {
 
 /* Character-specific animations */
 .char.happy {
-    animation: float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite;
+    animation: float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite, happySpin 4s linear infinite;
+}
+
+.char.speedy {
+    animation: float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite, speedyTrail 3s ease-in-out infinite;
+}
+
+.char.cool {
+    animation: float 2s ease-in-out infinite, coolSpin 4s linear infinite, coolShine 3s ease-in-out infinite;
+}
+
+.char.shy {
+    animation: float 2s ease-in-out infinite, shyBounce 3s ease-in-out infinite;
+}
+
+.char.sleepy {
+    animation: sleepyDrift 4s ease-in-out infinite;
+}
+
+.char.mad {
+    animation: float 1.8s ease-in-out infinite, madShake 2s ease-in-out infinite;
+}
+
+.char.sad {
+    animation: sadSink 3s ease-in-out infinite;
+}
+
+.char.nerd {
+    animation: float 2s ease-in-out infinite, nerdNod 2.5s ease-in-out infinite;
+}
+
+.char.robot {
+    animation: robotMove 3s ease-in-out infinite;
+}
+
+.char.ghost {
+    animation: ghostFloat 3.5s ease-in-out infinite;
 }
 
 .char.seedy {
-    animation: float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate;
+    animation: float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate, seedyFire 3s ease-in-out infinite;
+}
+
+/* New Character Animations */
+@keyframes shyBounce {
+    0%, 100% { 
+        transform: translateY(0px) scale(1);
+        background: linear-gradient(135deg, #FF69B4, #C71585);
+    }
+    50% { 
+        transform: translateY(-3px) scale(1.05);
+        background: linear-gradient(135deg, #FF85B3, #D42A9B);
+    }
+}
+
+@keyframes sleepyDrift {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg);
+        opacity: 1;
+    }
+    25% { 
+        transform: translateY(-2px) rotate(-1deg);
+        opacity: 0.9;
+    }
+    50% { 
+        transform: translateY(-4px) rotate(0deg);
+        opacity: 0.8;
+    }
+    75% { 
+        transform: translateY(-2px) rotate(1deg);
+        opacity: 0.9;
+    }
+}
+
+@keyframes madShake {
+    0%, 100% { 
+        transform: translateX(0px) scale(1);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    25% { 
+        transform: translateX(-2px) scale(1.02);
+        box-shadow: 0 3px 15px rgba(220, 20, 60, 0.5);
+    }
+    50% { 
+        transform: translateX(2px) scale(1.04);
+        box-shadow: 0 3px 20px rgba(220, 20, 60, 0.6);
+    }
+    75% { 
+        transform: translateX(-1px) scale(1.02);
+        box-shadow: 0 3px 15px rgba(220, 20, 60, 0.5);
+    }
+}
+
+@keyframes sadSink {
+    0%, 100% { 
+        transform: translateY(0px) scale(1);
+        background: linear-gradient(135deg, #1E90FF, #0000CD);
+    }
+    50% { 
+        transform: translateY(2px) scale(0.98);
+        background: linear-gradient(135deg, #4DA6FF, #0047B3);
+    }
+}
+
+@keyframes nerdNod {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% { 
+        transform: translateY(-1px) rotate(1deg);
+    }
+    50% { 
+        transform: translateY(-2px) rotate(0deg);
+        filter: brightness(1.2);
+    }
+    75% { 
+        transform: translateY(-1px) rotate(-1deg);
+    }
+}
+
+@keyframes robotMove {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    33% { 
+        transform: translateY(-3px) rotate(0.5deg);
+        box-shadow: 0 3px 15px rgba(112, 128, 144, 0.6);
+    }
+    66% { 
+        transform: translateY(-1px) rotate(-0.5deg);
+        box-shadow: 0 3px 12px rgba(112, 128, 144, 0.5);
+    }
+}
+
+@keyframes ghostFloat {
+    0%, 100% { 
+        transform: translateY(0px) scale(1);
+        opacity: 1;
+    }
+    25% { 
+        transform: translateY(-4px) scale(1.02);
+        opacity: 0.9;
+    }
+    50% { 
+        transform: translateY(-8px) scale(1.05);
+        opacity: 0.8;
+    }
+    75% { 
+        transform: translateY(-4px) scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+@keyframes happySpin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.05); }
+    100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes speedyTrail {
+    0%, 100% { 
+        filter: drop-shadow(0 0 0px rgba(255, 0, 0, 0));
+    }
+    50% { 
+        filter: drop-shadow(2px 2px 5px rgba(255, 0, 0, 0.3));
+    }
+}
+
+@keyframes coolShine {
+    0%, 100% { 
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    50% { 
+        box-shadow: 0 3px 20px rgba(65, 105, 225, 0.6);
+    }
+}
+
+@keyframes seedyFire {
+    0%, 100% { 
+        background: linear-gradient(135deg, #FF4500, #FF8C00);
+    }
+    50% { 
+        background: linear-gradient(135deg, #FF6347, #FFA500);
+    }
 }
 
 @keyframes glow {
@@ -215,6 +395,26 @@ p {
 @keyframes shake {
     0%, 100% { transform: translateY(0px) rotate(-2deg); }
     50% { transform: translateY(-5px) rotate(2deg); }
+}
+
+@keyframes speedyPulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(255, 0, 0, 0.5);
+    }
+}
+
+@keyframes coolSpin {
+    0% { 
+        transform: rotate(0deg);
+    }
+    100% { 
+        transform: rotate(360deg);
+    }
 }
 
 /* Enhanced finish line with animation */
@@ -934,6 +1134,101 @@ footer {
     color: rgba(255, 255, 255, 0.8);
 }
 
+/* Additional Animations */
+@keyframes floatParticle {
+    0%, 100% { 
+        transform: translateY(0px) translateX(0px);
+        opacity: 0;
+    }
+    50% { 
+        transform: translateY(-20px) translateX(10px);
+        opacity: 1;
+    }
+}
+
+@keyframes carStartFlash {
+    0%, 100% { 
+        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+    }
+    50% { 
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+    }
+}
+
+@keyframes victoryDance {
+    0%, 100% { 
+        transform: translateY(0px) scale(1);
+    }
+    25% { 
+        transform: translateY(-10px) scale(1.1);
+    }
+    50% { 
+        transform: translateY(0px) scale(1.05);
+    }
+    75% { 
+        transform: translateY(-5px) scale(1.08);
+    }
+}
+
+@keyframes modalEntrance {
+    0% { 
+        opacity: 0;
+        transform: scale(0.8) translateY(-50px);
+    }
+    100% { 
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modalExit {
+    0% { 
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    100% { 
+        opacity: 0;
+        transform: scale(0.8) translateY(-50px);
+    }
+}
+
+@keyframes slideDown {
+    0% { 
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+    100% { 
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    0% { 
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+}
+
+/* Enhanced track shine animation */
+@keyframes trackShine {
+    0% { 
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    50% { 
+        opacity: 0.5;
+    }
+    100% { 
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -995,121 +1290,5 @@ footer {
     .quote-display {
         font-size: 1rem;
         padding: 1rem;
-    }
-}
-
-/* Add these new animations to your existing style.css file */
-
-@keyframes floatParticle {
-    0%, 100% { 
-        transform: translateY(0px) translateX(0px);
-        opacity: 0;
-    }
-    50% { 
-        transform: translateY(-20px) translateX(10px);
-        opacity: 1;
-    }
-}
-
-@keyframes carStartFlash {
-    0%, 100% { 
-        filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
-    }
-    50% { 
-        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
-    }
-}
-
-@keyframes victoryDance {
-    0%, 100% { 
-        transform: translateY(0px) scale(1);
-    }
-    25% { 
-        transform: translateY(-10px) scale(1.1);
-    }
-    50% { 
-        transform: translateY(0px) scale(1.05);
-    }
-    75% { 
-        transform: translateY(-5px) scale(1.08);
-    }
-}
-
-@keyframes speedyPulse {
-    0%, 100% { 
-        transform: scale(1);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    }
-    50% { 
-        transform: scale(1.1);
-        box-shadow: 0 5px 15px rgba(255, 0, 0, 0.5);
-    }
-}
-
-@keyframes coolSpin {
-    0% { 
-        transform: rotate(0deg);
-    }
-    100% { 
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes modalEntrance {
-    0% { 
-        opacity: 0;
-        transform: scale(0.8) translateY(-50px);
-    }
-    100% { 
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-@keyframes modalExit {
-    0% { 
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-    100% { 
-        opacity: 0;
-        transform: scale(0.8) translateY(-50px);
-    }
-}
-
-@keyframes slideDown {
-    0% { 
-        transform: translateX(-50%) translateY(-100px);
-        opacity: 0;
-    }
-    100% { 
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideUp {
-    0% { 
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-    }
-    100% { 
-        transform: translateX(-50%) translateY(-100px);
-        opacity: 0;
-    }
-}
-
-/* Enhanced track shine animation */
-@keyframes trackShine {
-    0% { 
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    50% { 
-        opacity: 0.5;
-    }
-    100% { 
-        transform: translateX(100%);
-        opacity: 0;
     }
 }

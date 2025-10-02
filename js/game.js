@@ -109,16 +109,37 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add character-specific animations
         switch(charType) {
             case 'happy':
-                charElement.style.animation = 'float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite';
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite, happySpin 4s linear infinite';
                 break;
             case 'speedy':
-                charElement.style.animation = 'float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite';
+                charElement.style.animation = 'float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite, speedyTrail 3s ease-in-out infinite';
                 break;
             case 'cool':
-                charElement.style.animation = 'float 2s ease-in-out infinite, coolSpin 4s linear infinite';
+                charElement.style.animation = 'float 2s ease-in-out infinite, coolSpin 4s linear infinite, coolShine 3s ease-in-out infinite';
+                break;
+            case 'shy':
+                charElement.style.animation = 'float 2s ease-in-out infinite, shyBounce 3s ease-in-out infinite';
+                break;
+            case 'sleepy':
+                charElement.style.animation = 'sleepyDrift 4s ease-in-out infinite';
+                break;
+            case 'mad':
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, madShake 2s ease-in-out infinite';
+                break;
+            case 'sad':
+                charElement.style.animation = 'sadSink 3s ease-in-out infinite';
+                break;
+            case 'nerd':
+                charElement.style.animation = 'float 2s ease-in-out infinite, nerdNod 2.5s ease-in-out infinite';
+                break;
+            case 'robot':
+                charElement.style.animation = 'robotMove 3s ease-in-out infinite';
+                break;
+            case 'ghost':
+                charElement.style.animation = 'ghostFloat 3.5s ease-in-out infinite';
                 break;
             case 'seedy':
-                charElement.style.animation = 'float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate';
+                charElement.style.animation = 'float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate, seedyFire 3s ease-in-out infinite';
                 break;
             default:
                 charElement.style.animation = 'float 2s ease-in-out infinite';
@@ -135,6 +156,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (option.dataset.char === selectedChar) {
                 option.classList.add('active');
             }
+            // Apply animations to character options
+            const charElement = option.querySelector('.char');
+            applyCharacterAnimation(charElement, option.dataset.char);
         });
     });
     
@@ -143,6 +167,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     charOptions.forEach(option => {
+        // Apply initial animations to character options in popup
+        const charElement = option.querySelector('.char');
+        applyCharacterAnimation(charElement, option.dataset.char);
+        
         option.addEventListener('click', function() {
             const charType = this.dataset.char;
             updatePlayerCharacter(charType);
@@ -203,6 +231,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Start track effects
             startTrackEffects();
             
+            // Apply SEEDY animation to opponent
+            const opponentChar = document.querySelector('#opponent-car .char');
+            applyCharacterAnimation(opponentChar, 'seedy');
+            
         } catch (error) {
             console.error('Error loading quotes:', error);
             quoteDisplay.textContent = "Error loading quotes. Please check the console for details.";
@@ -256,6 +288,10 @@ document.addEventListener('DOMContentLoaded', function() {
         opponentCar.style.transition = 'left 0.5s ease-out';
         opponentCar.style.filter = 'none';
         opponentCar.style.animation = '';
+        
+        // Re-apply SEEDY animation to opponent
+        const opponentChar = document.querySelector('#opponent-car .char');
+        applyCharacterAnimation(opponentChar, 'seedy');
     }
     
     // Render the current quote with styling

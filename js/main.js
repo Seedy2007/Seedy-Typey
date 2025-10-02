@@ -59,6 +59,52 @@ document.addEventListener('DOMContentLoaded', function() {
         if (playerChar) {
             playerChar.className = `char ${playerData.character}`;
             playerChar.textContent = getCharacterText(playerData.character);
+            applyCharacterAnimation(playerChar, playerData.character);
+        }
+    }
+
+    // Apply character-specific animation
+    function applyCharacterAnimation(charElement, charType) {
+        // Remove existing animations
+        charElement.style.animation = '';
+        
+        // Add character-specific animations
+        switch(charType) {
+            case 'happy':
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite, happySpin 4s linear infinite';
+                break;
+            case 'speedy':
+                charElement.style.animation = 'float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite, speedyTrail 3s ease-in-out infinite';
+                break;
+            case 'cool':
+                charElement.style.animation = 'float 2s ease-in-out infinite, coolSpin 4s linear infinite, coolShine 3s ease-in-out infinite';
+                break;
+            case 'shy':
+                charElement.style.animation = 'float 2s ease-in-out infinite, shyBounce 3s ease-in-out infinite';
+                break;
+            case 'sleepy':
+                charElement.style.animation = 'sleepyDrift 4s ease-in-out infinite';
+                break;
+            case 'mad':
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, madShake 2s ease-in-out infinite';
+                break;
+            case 'sad':
+                charElement.style.animation = 'sadSink 3s ease-in-out infinite';
+                break;
+            case 'nerd':
+                charElement.style.animation = 'float 2s ease-in-out infinite, nerdNod 2.5s ease-in-out infinite';
+                break;
+            case 'robot':
+                charElement.style.animation = 'robotMove 3s ease-in-out infinite';
+                break;
+            case 'ghost':
+                charElement.style.animation = 'ghostFloat 3.5s ease-in-out infinite';
+                break;
+            case 'seedy':
+                charElement.style.animation = 'float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate, seedyFire 3s ease-in-out infinite';
+                break;
+            default:
+                charElement.style.animation = 'float 2s ease-in-out infinite';
         }
     }
 
@@ -96,18 +142,25 @@ document.addEventListener('DOMContentLoaded', function() {
             if (option.dataset.char === playerData.character) {
                 option.classList.add('active');
             }
+            // Apply animations to character options
+            const charElement = option.querySelector('.char');
+            applyCharacterAnimation(charElement, option.dataset.char);
         });
     }
 
     // Character selection for main options
     charOptions.forEach(option => {
+        // Apply initial animations
+        const charElement = option.querySelector('.char');
+        applyCharacterAnimation(charElement, option.dataset.char);
+        
         option.addEventListener('click', function() {
             charOptions.forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
             playerData.character = this.dataset.char;
             savePlayerData();
             
-            // Update character in demo
+            // Update character in demo with animation
             updatePlayerDisplay();
         });
     });
@@ -142,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
         instructions.classList.toggle('hidden');
     });
 
-    // Enhanced demo animation
+    // Enhanced demo animation with character animations
     function startDemoAnimation() {
         const playerDemo = document.querySelector('.player-demo');
         const opponentDemo = document.querySelector('.opponent-demo');
@@ -212,6 +265,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 opponentAnimationId = requestAnimationFrame(updateOpponentPosition);
             }
+            
+            // Apply character animation to opponent (SEEDY)
+            const opponentChar = opponentDemo.querySelector('.char');
+            applyCharacterAnimation(opponentChar, 'seedy');
             
             // Start both animations
             animatePlayer();

@@ -188,6 +188,10 @@ class PublicRaceGame {
         });
 
         this.charOptions.forEach(option => {
+            // Apply initial animations
+            const charElement = option.querySelector('.char');
+            this.applyCharacterAnimation(charElement, option.dataset.char);
+            
             option.addEventListener('click', () => {
                 const charType = option.dataset.char;
                 this.setPlayerCharacter(charType);
@@ -214,6 +218,9 @@ class PublicRaceGame {
             if (option.dataset.char === playerData.character) {
                 option.classList.add('active');
             }
+            // Apply animations to character options
+            const charElement = option.querySelector('.char');
+            this.applyCharacterAnimation(charElement, option.dataset.char);
         });
     }
 
@@ -257,16 +264,37 @@ class PublicRaceGame {
         // Add character-specific animations
         switch(charType) {
             case 'happy':
-                charElement.style.animation = 'float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite';
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, glow 3s ease-in-out infinite, happySpin 4s linear infinite';
                 break;
             case 'speedy':
-                charElement.style.animation = 'float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite';
+                charElement.style.animation = 'float 1.5s ease-in-out infinite, speedyPulse 2s ease-in-out infinite, speedyTrail 3s ease-in-out infinite';
                 break;
             case 'cool':
-                charElement.style.animation = 'float 2s ease-in-out infinite, coolSpin 4s linear infinite';
+                charElement.style.animation = 'float 2s ease-in-out infinite, coolSpin 4s linear infinite, coolShine 3s ease-in-out infinite';
+                break;
+            case 'shy':
+                charElement.style.animation = 'float 2s ease-in-out infinite, shyBounce 3s ease-in-out infinite';
+                break;
+            case 'sleepy':
+                charElement.style.animation = 'sleepyDrift 4s ease-in-out infinite';
+                break;
+            case 'mad':
+                charElement.style.animation = 'float 1.8s ease-in-out infinite, madShake 2s ease-in-out infinite';
+                break;
+            case 'sad':
+                charElement.style.animation = 'sadSink 3s ease-in-out infinite';
+                break;
+            case 'nerd':
+                charElement.style.animation = 'float 2s ease-in-out infinite, nerdNod 2.5s ease-in-out infinite';
+                break;
+            case 'robot':
+                charElement.style.animation = 'robotMove 3s ease-in-out infinite';
+                break;
+            case 'ghost':
+                charElement.style.animation = 'ghostFloat 3.5s ease-in-out infinite';
                 break;
             case 'seedy':
-                charElement.style.animation = 'float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate';
+                charElement.style.animation = 'float 2.2s ease-in-out infinite, shake 0.5s ease-in-out infinite, glow 2.5s ease-in-out infinite alternate, seedyFire 3s ease-in-out infinite';
                 break;
             default:
                 charElement.style.animation = 'float 2s ease-in-out infinite';
