@@ -191,7 +191,7 @@ p {
     width: 50px;
     height: 50px;
     font-size: 20px;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background: linear-gradient(135deg, #FFD700, #FF8C00);
     border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
     transform: rotate(5deg);
 }
@@ -200,7 +200,7 @@ p {
     width: 55px;
     height: 45px;
     font-size: 18px;
-    background: linear-gradient(135deg, #FF416C, #FF4B2B);
+    background: linear-gradient(135deg, #FF0000, #B22222);
     border-radius: 60% 40% 40% 60% / 50% 50% 50% 50%;
     transform: rotate(-10deg);
 }
@@ -209,7 +209,7 @@ p {
     width: 52px;
     height: 52px;
     font-size: 20px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #4169E1, #000080);
     border-radius: 40% 40% 40% 40% / 50% 50% 50% 50%;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
@@ -218,7 +218,7 @@ p {
     width: 48px;
     height: 52px;
     font-size: 18px;
-    background: linear-gradient(135deg, #FF9A9E, #FECFEF);
+    background: linear-gradient(135deg, #FF69B4, #C71585);
     border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
 }
 
@@ -226,7 +226,7 @@ p {
     width: 54px;
     height: 48px;
     font-size: 18px;
-    background: linear-gradient(135deg, #A18CD1, #FBC2EB);
+    background: linear-gradient(135deg, #9370DB, #4B0082);
     border-radius: 40% 40% 50% 50% / 60% 60% 40% 40%;
     transform: rotate(-5deg);
 }
@@ -235,7 +235,7 @@ p {
     width: 52px;
     height: 52px;
     font-size: 20px;
-    background: linear-gradient(135deg, #FF416C, #FF4B2B);
+    background: linear-gradient(135deg, #DC143C, #8B0000);
     border-radius: 30% 30% 50% 50% / 40% 40% 60% 60%;
     clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
 }
@@ -244,7 +244,7 @@ p {
     width: 50px;
     height: 54px;
     font-size: 18px;
-    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    background: linear-gradient(135deg, #1E90FF, #0000CD);
     border-radius: 40% 40% 50% 50% / 60% 60% 40% 40%;
     transform: rotate(3deg);
 }
@@ -253,7 +253,7 @@ p {
     width: 56px;
     height: 50px;
     font-size: 16px;
-    background: linear-gradient(135deg, #00b894, #00a085);
+    background: linear-gradient(135deg, #32CD32, #006400);
     border-radius: 40% 40% 40% 40% / 50% 50% 50% 50%;
     clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
 }
@@ -262,7 +262,7 @@ p {
     width: 52px;
     height: 52px;
     font-size: 18px;
-    background: linear-gradient(135deg, #636e72, #2d3436);
+    background: linear-gradient(135deg, #708090, #2F4F4F);
     border-radius: 20% 20% 20% 20% / 30% 30% 30% 30%;
     clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
 }
@@ -271,7 +271,7 @@ p {
     width: 58px;
     height: 56px;
     font-size: 16px;
-    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+    background: linear-gradient(135deg, #BA55D3, #8A2BE2);
     border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
     clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 75% 100%, 50% 85%, 25% 100%, 0% 75%);
 }
@@ -280,10 +280,10 @@ p {
     width: 55px;
     height: 55px;
     font-size: 18px;
-    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    background: linear-gradient(135deg, #FF4500, #FF8C00);
     border-radius: 45% 45% 45% 45% / 55% 55% 45% 45%;
     clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-    box-shadow: 0 4px 15px rgba(238, 90, 36, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
 }
 
 .car:hover .char {
