@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let winner = null;
     let errorPositions = new Set();
     let opponentFinishTime = null;
+    let botFinishedFirst = false;
     
     // Initialize game
     async function initGame() {
@@ -149,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
         winner = null;
         timeLeft = 60;
         opponentFinishTime = null;
+        botFinishedFirst = false;
         
         // Set opponent target WPM
         opponentTargetWPM = currentQuote.benchmarkWPM || 60;
@@ -234,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 opponentProgress = 0;
                 lastTimestamp = performance.now();
                 opponentFinishTime = null;
+                botFinishedFirst = false;
                 
                 // Enable input
                 typingInput.disabled = false;
@@ -281,15 +284,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 opponentFinished = true;
                 opponentFinishTime = new Date();
                 
-                // If opponent finished first, end the game immediately
+                // If opponent finished first, mark that bot finished first but don't end the game
                 if (!playerFinished) {
-                    endGame(false); // Player loses
-                } else {
-                    // Both finished - compare times
-                    const playerTime = (opponentFinishTime - startTime) / 1000;
-                    const opponentTime = targetTimeSeconds;
-                    winner = playerTime < opponentTime ? 'player' : 'opponent';
-                    endGame(winner === 'player');
+                    botFinishedFirst = true;
+                    // Show message that SEEDY finished first
+                    showBotFinishedMessage();
                 }
             }
             
@@ -297,6 +296,12 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         updateOpponent();
+    }
+    
+    // Show message when bot finishes first
+    function showBotFinishedMessage() {
+        // You can add a visual indicator here if you want
+        console.log("SEEDY finished first! You lost, but you can still complete the race.");
     }
     
     // Start the timer
@@ -308,10 +313,24 @@ document.addEventListener('DOMContentLoaded', function() {
             timerElement.textContent = timeLeft;
             
             if (timeLeft <= 0 && !gameEnded) {
-                // Time's up - determine winner based on progress
-                const playerProgressPercent = (correctCharacters / currentQuote.text.length) * 100;
-                const playerWon = playerProgressPercent > opponentProgress;
-                endGame(playerWon);
+                // Time's up - determine winner
+                if (playerFinished && opponentFinished) {
+                    // Both finished - compare times
+                    const playerTime = opponentFinishTime ? (opponentFinishTime - startTime) / 1000 : 60;
+                    const opponentTime = (currentQuote.text.length / 5 / opponentTargetWPM * 60);
+                    winner = playerTime < opponentTime ? 'player' : 'opponent';
+                    endGame(winner === 'player');
+                } else if (playerFinished && !opponentFinished) {
+                    // Only player finished
+                    endGame(true);
+                } else if (!playerFinished && opponentFinished) {
+                    // Only opponent finished (bot finished first)
+                    endGame(false);
+                } else {
+                    // Neither finished - determine by progress
+                    const playerProgressPercent = (correctCharacters / currentQuote.text.length) * 100;
+                    endGame(playerProgressPercent > opponentProgress);
+                }
             }
         }, 1000);
     }
@@ -416,15 +435,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Quote completed correctly
             playerFinished = true;
             
-            // If player finished first, end the game immediately
+            // If player finished first, end the game immediately with player as winner
             if (!opponentFinished) {
                 endGame(true); // Player wins
             } else {
-                // Both finished - compare times
-                const playerTime = (new Date() - startTime) / 1000;
-                const opponentTime = (opponentFinishTime - startTime) / 1000;
-                winner = playerTime < opponentTime ? 'player' : 'opponent';
-                endGame(winner === 'player');
+                // Bot finished first, player finished later - player lost
+                endGame(false);
             }
         }
     }
